@@ -1,0 +1,7 @@
+/odoo/odoo.conf
+*.env
+/pyproject.toml
+/.python-version
+/uv.lock
+/bot.log
+/.coverage

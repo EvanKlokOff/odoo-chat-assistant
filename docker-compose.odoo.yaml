@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # PostgreSQL база данных
+  postgres:
+    image: postgres:16
+    container_name: odoo_postgres
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=${ODOO_DB_PASSWORD:-odoo_secure_password}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Метки для мониторинга
+    labels:
+      - "com.odoo.service=database"
+      - "com.odoo.version=16"
+
+  # Odoo сервер
+  odoo:
+    image: odoo:18
+    container_name: odoo_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${ODOO_PORT:-8069}:8069"
+      - "${ODOO_LONGPOLL_PORT:-8072}:8072"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=odoo
+      - DB_PASSWORD=${ODOO_DB_PASSWORD:-odoo_secure_password}
+    volumes:
+      - odoo_data:/var/lib/odoo
+      - ./odoo/addons:/mnt/extra-addons
+      - ./odoo/odoo.conf:/etc/odoo/odoo.conf:ro
+    restart: unless-stopped
+    networks:
+      - app_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      - "com.odoo.service=app"
+      - "com.odoo.version=18"
+
+# Объявляем сети и volumes (будут использованы из основного файла)
+networks:
+  app_network:
+    external: true
+
+volumes:
+  postgres_data:
+    external: true
+  odoo_data:
+    external: true

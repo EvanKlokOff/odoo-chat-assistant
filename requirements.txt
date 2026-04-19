@@ -1,0 +1,23 @@
+# Core
+python-dotenv>=1.0.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# Database
+sqlalchemy>=2.0.0
+asyncpg>=0.29.0
+alembic>=1.13.0
+pgvector>=0.2.0
+
+# Telegram
+aiogram>=3.5.0
+
+# AI & LangChain
+langchain>=0.2.0
+langchain-community>=0.2.0
+langgraph>=0.1.0
+langchain-ollama>=0.1.0
+
+# Utilities
+aiofiles>=23.2.0
+loguru>=0.7.0
