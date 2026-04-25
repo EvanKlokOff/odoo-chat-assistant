@@ -1,6 +1,44 @@
 from datetime import datetime, timedelta
 import re
 from html import escape
+from functools import wraps
+from aiogram import types
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+async def handle_unknown_command(message: types.Message):
+    """Обработчик неизвестных команд"""
+    command = message.text.split()[0] if message.text else "unknown"
+
+    if message.chat.type == "private":
+        # В ЛС - показываем help
+        from src.interfaces.telegram.handlers import main_keyboard, get_help_text
+
+        await message.answer(
+            f"❓ Неизвестная команда: `{command}`\n\n"
+            f"{get_help_text()}",
+            parse_mode="Markdown",
+            reply_markup=main_keyboard
+        )
+    else:
+        # В группе - просто логируем
+        user_info = f"{message.from_user.full_name} (ID: {message.from_user.id})"
+        logger.info(f"⚠️ Unknown command '{command}' from {user_info} in chat {message.chat.id} ({message.chat.title})")
+
+def private_chat_only(func):
+    """Декоратор для команд, которые работают только в ЛС"""
+    @wraps(func)
+    async def wrapper(message: types.Message, *args, **kwargs):
+        if message.chat.type != "private":
+            await message.answer(
+                "⚠️ Эта команда доступна только в личном диалоге с ботом.\n\n"
+                "Пожалуйста, перейдите в ЛС: https://t.me/" + (await message.bot.get_me()).username
+            )
+            return
+        return await func(message, *args, **kwargs)
+    return wrapper
 
 def escape_markdown(text: str) -> str:
     """Escape special characters for Telegram MarkdownV2"""

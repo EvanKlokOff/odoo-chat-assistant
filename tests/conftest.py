@@ -2,6 +2,9 @@ import pytest
 from src.config import settings
 from src.llm.factory import LLMFactory
 from src.llm.base import BaseLLMProvider, BaseEmbeddingProvider
+from unittest.mock import AsyncMock, Mock, patch
+from aiogram.types import Chat, User, Message, ChatMemberUpdated, ChatMember
+from datetime import datetime
 
 
 @pytest.fixture(scope="function")
@@ -75,6 +78,55 @@ def sample_messages() -> list:
         }
     ]
 
+@pytest.fixture(scope="function")
+def sample_instruction() -> str:
+    """Sample instruction for compliance testing"""
+    return """
+    Чат по продаже недвижимости.
+    Характер переписки: деловой, профессиональный.
+    Цель: продажа квартир клиентам.
+    Требования: вежливое общение, предоставление полной информации по объектам,
+    оперативные ответы на вопросы клиентов.
+    """
+
+@pytest.fixture
+def mock_message():
+    """Создает мок-сообщение для тестирования"""
+    message = Mock(spec=Message)
+
+    message.from_user = Mock(spec=User)
+    message.from_user.is_bot = False
+    message.from_user.id = 123456789
+    message.from_user.full_name = "Test User"
+    message.from_user.username = "testuser"
+
+    message.chat = Mock(spec=Chat)
+    message.chat.id = -1001234567890
+    message.chat.title = "Test Chat"
+    message.chat.type = "group"
+
+    message.text = "Test message content"
+    message.caption = None
+    message.date = datetime.now()
+    message.message_id = 999
+    message.reply_to_message = None
+    return message
+
+@pytest.fixture
+def mock_bot_message():
+    """Создает мок-сообщение от бота"""
+    message = Mock(spec=Message)
+    message.from_user = Mock(spec=User)
+    message.from_user.is_bot = True
+    message.from_user.id = 777777777
+    message.from_user.full_name = "Test Bot"
+    message.from_user.username = "testbot"
+
+    message.chat = Mock(spec=Chat)
+    message.chat.id = -1001234567890
+    message.chat.title = "Test Chat"
+
+    return message
 
 @pytest.fixture(scope="function")
 def sample_instruction() -> str:

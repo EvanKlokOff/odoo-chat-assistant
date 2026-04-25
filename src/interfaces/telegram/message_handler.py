@@ -2,8 +2,7 @@ import logging
 from datetime import datetime
 from aiogram import types
 from aiogram.types import ChatMemberUpdated
-from aiogram.filters import ChatMemberUpdatedFilter, JOIN_TRANSITION
-
+from src.database.crud import add_user_chat
 from src.database.crud import save_message
 
 logger = logging.getLogger(__name__)
@@ -35,6 +34,12 @@ async def handle_new_message(message: types.Message):
 
         logger.info(f"Saved message from {sender_name} in chat {message.chat.id}")
 
+        await add_user_chat(
+            user_id=message.from_user.id,
+            chat_id=str(message.chat.id),
+            chat_title=message.chat.title
+        )
+        logger.info(f"Saved message from {sender_name} in chat {message.chat.id}")
     except Exception as e:
         logger.error(f"Failed to save message: {e}", exc_info=True)
 
