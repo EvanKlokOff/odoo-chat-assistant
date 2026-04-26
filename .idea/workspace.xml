@@ -1,16 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="55a1370a-10e4-4600-8281-b944b6da5411" name="Changes" comment="Init commit">
-      <change afterPath="$PROJECT_DIR$/src/interfaces/telegram/chat_manager.py" afterDir="false" />
+    <list default="true" id="55a1370a-10e4-4600-8281-b944b6da5411" name="Changes" comment="Добавление получения ревью переписки от бота">
+      <change afterPath="$PROJECT_DIR$/run-celery.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/analyzers/embedding_service.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/interfaces/telegram/keyboards.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/interfaces/telegram/states.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/redis_db/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/redis_db/session.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/tasks/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/tasks/celery_app.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/tasks/embedding_tasks.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/tasks/utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.bot.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.bot.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/analyzers/nodes.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/analyzers/nodes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cache/redis_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/cache/redis_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/database/crud.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/crud.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/database/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/interfaces/telegram/bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/telegram/bot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/telegram/chat_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/telegram/chat_manager.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/interfaces/telegram/handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/telegram/handlers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/interfaces/telegram/message_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/telegram/message_handler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/interfaces/telegram/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/telegram/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/conftest.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/conftest.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,45 +61,45 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python tests.Python tests for tests.test_analyzers.TestReviewGeneration.executor": "Run",
-    "Python tests.Python tests for tests.test_analyzers.TestReviewGeneration.test_generate_review_with_messages.executor": "Run",
-    "Python tests.Python tests for tests.test_analyzers.test_generate_review_empty_messages.executor": "Run",
-    "Python tests.Python tests for tests.test_analyzers.test_generate_review_with_messages.executor": "Debug",
-    "Python tests.Python tests for tests.test_embedings.test_embedding_consistency.executor": "Run",
-    "Python tests.Python tests for tests.test_embedings.test_embedding_similarity.executor": "Run",
-    "Python tests.Python tests for tests.test_embedings.test_semantic_search.executor": "Run",
-    "Python tests.Python tests for tests.test_integration.test_full_compliance_pipeline.executor": "Run",
-    "Python tests.Python tests for tests.test_integration.test_full_review_pipeline.executor": "Debug",
-    "Python tests.Python tests for tests.test_integration.test_real_embeddings_search.executor": "Debug",
-    "Python tests.Python tests for tests.test_integration.test_real_llm_review.executor": "Debug",
-    "Python tests.Python tests for tests.test_llm_providers.test_chat.executor": "Run",
-    "Python tests.Python tests for tests.test_llm_providers.test_gemma3_analysis.executor": "Debug",
-    "Python tests.Python tests for tests.test_llm_providers.test_gemma3_response.executor": "Run",
-    "Python tests.Python tests for tests.test_llm_providers.test_generate_response.executor": "Debug",
-    "Python tests.Python tests for tests.test_llm_providers.test_generate_with_system_prompt.executor": "Debug",
-    "Python tests.Python tests for tests.test_llm_providers.test_generate_with_template.executor": "Debug",
-    "Python tests.pytest for tests.test_message_handling.test_handle_new_message_success.executor": "Debug",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/user/PycharmProjects/odoo-chat-assistant",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "vcs.Git",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python tests.Python tests for tests.test_analyzers.TestReviewGeneration.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_analyzers.TestReviewGeneration.test_generate_review_with_messages.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_analyzers.test_generate_review_empty_messages.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_analyzers.test_generate_review_with_messages.executor&quot;: &quot;Debug&quot;,
+    &quot;Python tests.Python tests for tests.test_embedings.test_embedding_consistency.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_embedings.test_embedding_similarity.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_embedings.test_semantic_search.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_integration.test_full_compliance_pipeline.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_integration.test_full_review_pipeline.executor&quot;: &quot;Debug&quot;,
+    &quot;Python tests.Python tests for tests.test_integration.test_real_embeddings_search.executor&quot;: &quot;Debug&quot;,
+    &quot;Python tests.Python tests for tests.test_integration.test_real_llm_review.executor&quot;: &quot;Debug&quot;,
+    &quot;Python tests.Python tests for tests.test_llm_providers.test_chat.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_llm_providers.test_gemma3_analysis.executor&quot;: &quot;Debug&quot;,
+    &quot;Python tests.Python tests for tests.test_llm_providers.test_gemma3_response.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_llm_providers.test_generate_response.executor&quot;: &quot;Debug&quot;,
+    &quot;Python tests.Python tests for tests.test_llm_providers.test_generate_with_system_prompt.executor&quot;: &quot;Debug&quot;,
+    &quot;Python tests.Python tests for tests.test_llm_providers.test_generate_with_template.executor&quot;: &quot;Debug&quot;,
+    &quot;Python tests.pytest for tests.test_message_handling.test_handle_new_message_success.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/user/PycharmProjects/odoo-chat-assistant&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;vcs.Git&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/cache" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.pytest for tests.test_message_handling.test_handle_new_message_success">
+  <component name="RunManager" selected="Python.main">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="odoo-chat-assistant" />
       <option name="ENV_FILES" value="" />
@@ -206,11 +219,11 @@
     </configuration>
     <list>
       <item itemvalue="Python.main" />
-      <item itemvalue="Python tests.pytest for tests.test_message_handling.test_handle_new_message_success" />
       <item itemvalue="Python tests.Python tests for tests.test_integration.test_full_compliance_pipeline" />
       <item itemvalue="Python tests.Python tests for tests.test_integration.test_full_review_pipeline" />
       <item itemvalue="Python tests.Python tests for tests.test_integration.test_real_embeddings_search" />
       <item itemvalue="Python tests.Python tests for tests.test_integration.test_real_llm_review" />
+      <item itemvalue="Python tests.pytest for tests.test_message_handling.test_handle_new_message_success" />
     </list>
     <recent_temporary>
       <list>
@@ -244,7 +257,10 @@
       <workItem from="1776608939450" duration="5550000" />
       <workItem from="1776662762202" duration="5429000" />
       <workItem from="1776671169063" duration="3388000" />
-      <workItem from="1777116649715" duration="948000" />
+      <workItem from="1777116649715" duration="2566000" />
+      <workItem from="1777140276173" duration="11619000" />
+      <workItem from="1777193844381" duration="140000" />
+      <workItem from="1777202142203" duration="7956000" />
     </task>
     <task id="LOCAL-00001" summary="Init commit">
       <option name="closed" value="true" />
@@ -262,7 +278,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776621013724</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Добавление получения ревью переписки от бота">
+      <option name="closed" value="true" />
+      <created>1777117627492</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1777117627492</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -281,7 +305,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Init commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="Init commit" />
+    <MESSAGE value="Добавление получения ревью переписки от бота" />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавление получения ревью переписки от бота" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -326,37 +351,12 @@
           <line>159</line>
           <option name="timeStamp" value="28" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/analyzers/nodes.py</url>
-          <line>113</line>
-          <option name="timeStamp" value="29" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/interfaces/telegram/utils.py</url>
-          <line>33</line>
-          <option name="timeStamp" value="30" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/interfaces/telegram/handlers.py</url>
-          <line>110</line>
-          <option name="timeStamp" value="31" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/interfaces/telegram/message_handler.py</url>
-          <line>13</line>
-          <option name="timeStamp" value="36" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/interfaces/telegram/message_handler.py</url>
-          <line>23</line>
-          <option name="timeStamp" value="37" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/odoo_chat_assistant$main.coverage" NAME="main Coverage Results" MODIFIED="1776667134117" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/odoo_chat_assistant$pytest_for_tests_test_message_handling_test_handle_new_message_success.coverage" NAME="pytest for tests.test_message_handling.test_handle_new_message_success Coverage Results" MODIFIED="1777117212358" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/odoo_chat_assistant$main.coverage" NAME="main Coverage Results" MODIFIED="1777209423687" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/odoo_chat_assistant$.coverage" NAME=" Coverage Results" MODIFIED="1776018033029" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

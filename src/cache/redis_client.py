@@ -1,5 +1,5 @@
 # src/cache/redis_client.py
-import redis.asyncio as redis
+import redis_db.asyncio as redis
 from typing import Optional, Any, Dict, List
 import json
 import logging
@@ -15,7 +15,7 @@ class RedisClient:
         self.redis: Optional[redis.Redis] = None
         self._pool: Optional[redis.ConnectionPool] = None
 
-    async def connect(self, url: str = "redis://localhost:6379/0"):
+    async def connect(self, url: str = "redis_db://localhost:6379/0"):
         """Установка соединения с Redis"""
         try:
             self._pool = redis.ConnectionPool.from_url(

@@ -1,16 +1,13 @@
 import logging
 from datetime import datetime
 
-from sqlalchemy import select
-
 from src.config import settings
 from src.analyzers.state import AgentState
 from src.llm.base import BaseLLMProvider, BaseEmbeddingProvider
 from src.llm.factory import LLMFactory
 from src.llm import exceptions
-from src.database.session import AsyncSessionLocal
-from src.database.models import Message
-
+from src.analyzers.embedding_service import embedding_service
+from src.database import crud
 
 logger = logging.getLogger(__name__)
 
@@ -55,33 +52,42 @@ async def retrieve_chat_messages(state: AgentState) -> AgentState:
     """Retrieve chat messages from database based on date range"""
     logger.info(f"Retrieving messages for date range: {state.get('date_start')} to {state.get('date_end')}")
 
+    # Формируем поисковый запрос
+    if state["query_type"] == "review":
+        query = "ключевые темы обсуждения основные решения важные моменты"
+    else:  # compliance
+        instruction = state.get("instruction", "")
+        query = f"проверка соответствия инструкции: {instruction}"
 
-    async with AsyncSessionLocal() as db:
-        stmt = select(Message)
-
-        if state.get("chat_id"):
-            stmt = stmt.where(Message.chat_id == state["chat_id"])
-        if state.get("date_start"):
-            stmt = stmt.filter(Message.timestamp >= datetime.fromisoformat(state["date_start"]))
-        if state.get("date_end"):
-            stmt = stmt.filter(Message.timestamp <= datetime.fromisoformat(state["date_end"]))
-
-        stmt = stmt.order_by(Message.timestamp)
-        result = await db.execute(stmt)
-        results = result.scalars().all()
-
-        messages = [
+    relevant_messages = await embedding_service.retrieve_relevant_messages(
+        chat_id=state["chat_id"],
+        query=query,
+        date_start=state.get("date_start"),
+        date_end=state.get("date_end"),
+        limit=10  # Берем только 10 самых релевантных
+    )
+    if not relevant_messages:
+        # Fallback: берем последние сообщения если RAG не нашел
+        logger.warning("No relevant messages found, falling back to recent messages")
+        messages = await crud.get_chat_messages(
+            chat_id=state["chat_id"],
+            date_start=datetime.fromisoformat(state["date_start"]) if state.get("date_start") else None,
+            date_end=datetime.fromisoformat(state["date_end"]) if state.get("date_end") else None,
+            limit=20,
+            order_desc=True
+        )
+        relevant_messages = [
             {
-                "sender_name": msg.sender_name,
                 "content": msg.content,
-                "timestamp": msg.timestamp.isoformat()
+                "timestamp": msg.timestamp.isoformat(),
+                "sender_name": msg.sender_name
             }
-            for msg in results
+            for msg in messages
         ]
+    state["chat_messages"] = relevant_messages
+    logger.info(f"Retrieved {len(relevant_messages)} relevant messages")
 
-    state["chat_messages"] = messages
     return state
-
 
 async def generate_review(state: AgentState) -> AgentState:
     """Generate a summary review of the chat messages"""
@@ -111,11 +117,10 @@ async def generate_review(state: AgentState) -> AgentState:
     llm = get_llm_provider()
     if not llm:
         raise exceptions.AnalysisException("No LLM provider")
+
     response = await llm.generate(prompt)
-    if hasattr(response, 'content'):
-        state["analysis_result"] = response.content
-    else:
-        state["analysis_result"] = str(response)
+    state["analysis_result"] = response.content if hasattr(response, 'content') else str(response)
+
     return state
 
 

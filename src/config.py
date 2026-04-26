@@ -6,9 +6,16 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Settings(BaseSettings):
-    # Database
-    database_url: str = Field(default="postgresql://analyzer:password@localhost:5432/chat_analyzer")
+    # Database Postgresql
+    database_url: str = Field(default=f"postgresql://analyzer:password@localhost:5432/chat_analyzer", alias="DATABASE_URL")
     db_password: Optional[str] = Field(default=None, alias="DB_PASSWORD")
+
+    #Database Redis
+    redis_url: str = Field(default=None, alias="REDIS_URL")  # URL для подключения к Redis
+    redis_password: Optional[str] = Field(default=None, alias="REDIS_PASSWORD")
+    redis_db: Optional[str] = Field(default=None, alias="REDIS_DB")
+    redis_port: Optional[int] = Field(default=None, alias="REDIS_PORT")
+    redis_host: Optional[str] = Field(default=None, alias="REDIS_HOST")
 
     # Ollama
     ollama_base_url: str = Field(default="http://localhost:11434")
@@ -17,7 +24,7 @@ class Settings(BaseSettings):
 
     # Telegram
     telegram_bot_token: str = Field(default="")
-
+    chat_per_page:int = Field(default=5, alias="CHAT_PER_PAGE")
     # LLM Provider Settings
     llm_provider: str = Field(default="gemma3")  # 'ollama', 'gemma3', 'mock', 'openai'
     embedding_provider: str = Field(default="nomic")  # 'ollama', 'nomic', 'openai'
@@ -39,6 +46,10 @@ class Settings(BaseSettings):
     max_context_messages: int = 50
     context_window_minutes: int = 60  # Keep context for last hour
     enable_conversation_memory: bool = True
+
+    #Celery
+    celery_broker_url: Optional[str] = Field(default=None, alias="CELERY_BROKER_URL")
+    celery_result_backend: Optional[str] = Field(default=None, alias="CELERY_RESULT_BACKEND")
 
     # Performance
     batch_size: int = 100
