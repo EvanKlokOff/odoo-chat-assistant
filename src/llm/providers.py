@@ -111,25 +111,14 @@ class Gemma3OptimizedProvider(OllamaProvider):
     def __init__(
             self,
             base_url: str = "http://localhost:11434",
-            model_size: str = "27b",  # 2b, 9b, 27b
             temperature: float = 0.1,
             **kwargs
     ):
-        model_name = f"gemma3:{model_size}"
-
-        # Оптимальные настройки для разных размеров модели
-        if model_size == "27b":
-            num_ctx = 4096  # 4K контекста для 27B
-            num_predict = 2048
-        elif model_size == "12b":
-            num_ctx = 8192  # 8K контекста для 12B
-            num_predict = 4096
-        else:  # 2b
-            num_ctx = 16384  # 16K контекста для 2B
-            num_predict = 8192
+        num_ctx = 4096  # 4K контекста для 27B
+        num_predict = 2048
 
         super().__init__(
-            model=model_name,
+            model="Gemma3:27b",
             base_url=base_url,
             temperature=temperature,
             num_ctx=num_ctx,
@@ -138,7 +127,35 @@ class Gemma3OptimizedProvider(OllamaProvider):
             kv_cache_type="q8_0",
             **kwargs
         )
-        logger.info(f"Initialized Gemma 3 {model_size} with optimized settings (ctx={num_ctx})")
+        logger.info(f"Initialized Gemma 3 27B with optimized settings (ctx={num_ctx})")
+
+
+class Phi4MiniProvider(OllamaProvider):
+    """Оптимизированный провайдер для Phi-4 Mini"""
+
+    def __init__(
+            self,
+            base_url: str = "http://localhost:11434",
+            model: str = "phi4-mini:latest",
+            temperature: float = 0.1,
+            **kwargs
+    ):
+        # Оптимальные настройки для Phi-4 Mini
+        super().__init__(
+            model=model,
+            base_url=base_url,
+            temperature=temperature,
+            num_ctx=8192,  # 8K контекста
+            num_predict=4096,  # Максимальный ответ
+            top_k=50,
+            top_p=0.95,
+            repeat_penalty=1.1,
+            flash_attention=True,
+            kv_cache_type="q8_0",
+            **kwargs
+        )
+        logger.info(f"Initialized Phi-4 Mini with optimized settings (ctx=8192)")
+
 
 @dataclass
 class MockResponse:
@@ -258,3 +275,4 @@ class NomicEmbedTextProvider(OllamaEmbeddingProvider):
             similarities.append((i, similarity))
 
         return sorted(similarities, key=lambda x: x[1], reverse=True)
+

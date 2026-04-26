@@ -9,13 +9,12 @@ from aiogram.types import (
 # Главное меню
 main_menu_keyboard = ReplyKeyboardMarkup(
     keyboard=[
-        [KeyboardButton(text="📊 Ревью чата"),KeyboardButton(text="✅ Проверка соответствия")],
-        [KeyboardButton(text="📋 Мои чаты"),KeyboardButton(text="❓ Помощь")]
+        [KeyboardButton(text="📊 Ревью чата"), KeyboardButton(text="✅ Проверка соответствия")],
+        [KeyboardButton(text="📋 Мои чаты"), KeyboardButton(text="❓ Помощь")]
     ],
     resize_keyboard=True,
     one_time_keyboard=False
 )
-
 
 # Клавиатура для выбора периода (для review и compliance)
 def get_date_selection_keyboard(command_type: str = "review") -> InlineKeyboardMarkup:
@@ -65,6 +64,7 @@ def get_custom_date_keyboard(command_type: str = "review") -> InlineKeyboardMark
         ]
     ])
 
+
 # Клавиатура для подтверждения отмены
 cancel_confirmation_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     [
@@ -74,9 +74,13 @@ cancel_confirmation_keyboard = InlineKeyboardMarkup(inline_keyboard=[
 ])
 
 # Клавиатура для возврата в главное меню
-back_to_menu_keyboard = ReplyKeyboardMarkup(
+back_to_menu_reply_keyboard = ReplyKeyboardMarkup(
     keyboard=[[KeyboardButton(text="🏠 Главное меню")]],
     resize_keyboard=True
 )
+
+back_to_menu_inline = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="🏠 Главное меню", callback_data="main_menu")]
+])
 
 remove_keyboard = ReplyKeyboardRemove()

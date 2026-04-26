@@ -251,7 +251,7 @@ async def handle_review_custom_date(callback: types.CallbackQuery, state: FSMCon
             "Пример: `25.12.2025`\n\n"
             "Анализ будет выполнен с указанной даты по текущий момент.",
             parse_mode="Markdown",
-            reply_markup=keyboards.back_to_menu_keyboard
+            reply_markup=keyboards.back_to_menu_reply_keyboard
         )
     elif data == "review_custom_range":
         await state.update_data(date_type="range")
@@ -260,7 +260,7 @@ async def handle_review_custom_date(callback: types.CallbackQuery, state: FSMCon
             "Пример: `01.01.2025 31.01.2025`\n\n"
             "Анализ будет выполнен за указанный период.",
             parse_mode="Markdown",
-            reply_markup=keyboards.back_to_menu_keyboard
+            reply_markup=keyboards.back_to_menu_reply_keyboard
         )
     elif data in ["review_back_to_periods", "review_main_menu"]:
         # Эти кнопки обрабатываются в handle_review_date_selection
@@ -361,7 +361,7 @@ async def handle_compliance_date_selection(callback: types.CallbackQuery, state:
             f"Пример: *Чат по продаже автомобилей, деловой стиль, цель - продажа*\n\n"
             f"Или нажмите /cancel для отмены.",
             parse_mode="Markdown",
-            reply_markup=keyboards.back_to_menu_keyboard
+            reply_markup=keyboards.back_to_menu_inline
         )
     else:
         # Обработка кастомной даты
@@ -391,7 +391,7 @@ async def handle_compliance_custom_date(callback: types.CallbackQuery, state: FS
             "Анализ будет выполнен с указанной даты по текущий момент.\n\n"
             "После ввода даты вы сможете ввести инструкцию.",
             parse_mode="Markdown",
-            reply_markup=keyboards.back_to_menu_keyboard
+            reply_markup=keyboards.back_to_menu_reply_keyboard
         )
     elif data == "compliance_custom_range":
         await state.update_data(date_type="range")
@@ -400,7 +400,7 @@ async def handle_compliance_custom_date(callback: types.CallbackQuery, state: FS
             "Пример: `01.01.2025 31.01.2025`\n\n"
             "После ввода периода вы сможете ввести инструкцию.",
             parse_mode="Markdown",
-            reply_markup=keyboards.back_to_menu_keyboard
+            reply_markup=keyboards.back_to_menu_reply_keyboard
         )
     elif data in ["compliance_back_to_periods", "compliance_main_menu"]:
         # Эти кнопки обрабатываются в handle_compliance_date_selection
@@ -424,7 +424,7 @@ async def handle_compliance_instruction(message: types.Message, state: FSMContex
         await message.answer(
             "❌ Инструкция не может быть пустой.\n\n"
             "Пожалуйста, введите инструкцию для проверки:",
-            reply_markup=keyboards.back_to_menu_keyboard
+            reply_markup=keyboards.back_to_menu_reply_keyboard
         )
         return
 
@@ -547,7 +547,7 @@ async def process_compliance_custom_date_text(message: types.Message, state: FSM
             f"Инструкция должна описывать правила, стиль общения, цели чата.\n"
             f"Пример: *Чат по продаже автомобилей, деловой стиль, цель - продажа*",
             parse_mode="Markdown",
-            reply_markup=keyboards.back_to_menu_keyboard
+            reply_markup=keyboards.back_to_menu_reply_keyboard
         )
 
     except ValueError:

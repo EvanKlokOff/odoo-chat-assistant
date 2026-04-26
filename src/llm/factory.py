@@ -3,7 +3,7 @@ from src.llm.base import BaseLLMProvider, BaseEmbeddingProvider
 from src.llm.providers import (
     OllamaProvider, MockProvider,
     OllamaEmbeddingProvider, Gemma3OptimizedProvider,
-    NomicEmbedTextProvider
+    NomicEmbedTextProvider, Phi4MiniProvider
 )
 
 
@@ -26,6 +26,13 @@ class LLMFactory:
             return OllamaProvider(
                 model=model or "gemma3:27b",
                 base_url=base_url or "http://localhost:11434",
+                temperature=temperature,
+                **kwargs
+            )
+        elif provider_type == 'phi4' or provider_type == 'phi4-mini':  # Добавлен новый тип
+            return Phi4MiniProvider(
+                base_url=base_url or "http://localhost:11434",
+                model=model or "phi4-mini:latest",
                 temperature=temperature,
                 **kwargs
             )

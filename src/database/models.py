@@ -1,8 +1,9 @@
-from sqlalchemy import Column, Integer, String, Text, TIMESTAMP, ForeignKey, Index,DateTime
+from sqlalchemy import (Column, Integer, String, Text, TIMESTAMP,
+                        ForeignKey, Index, DateTime, UniqueConstraint,
+                        ColumnElement, CheckConstraint)
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, text
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import ColumnElement
 from sqlalchemy.orm import relationship
 
 Base = declarative_base()
@@ -11,7 +12,29 @@ Base = declarative_base()
 class MessageChunk(Base):
     """Чанк сообщения с эмбеддингом"""
     __tablename__ = "message_chunks"
+    __table_args__ = (
+        # Основные индексы для частых запросов
+        Index('idx_chunks_chat_id_timestamp', 'chat_id', 'timestamp'),
+        Index('idx_chunks_message_id', 'message_id'),
+        Index('idx_chunks_chat_id_message_id', 'chat_id', 'message_id'),
+        Index('idx_chunks_timestamp', 'timestamp'),
 
+        # Векторные индексы для pgvector
+        # IVFFlat индекс (хорош для больших таблиц)
+        Index('idx_chunks_embedding_ivfflat', 'embedding',
+              postgresql_using='ivfflat'),
+
+        # HNSW индекс (быстрее, но требует больше памяти) - раскомментировать при необходимости
+        # Index('idx_chunks_embedding_hnsw', 'embedding',
+        #       postgresql_using='hnsw',
+        #       postgresql_with_ops={'embedding': 'vector_cosine_ops'}),
+
+        # Покрывающий индекс для ускорения запросов
+        Index('idx_chunks_covering', 'chat_id', 'timestamp', 'message_id'),
+
+        CheckConstraint('chunk_index >= 0', name='check_chunk_index_positive'),
+        CheckConstraint('length(chunk_text) >= 10', name='check_chunk_min_length'),
+    )
     id = Column(Integer, primary_key=True)
     chat_id = Column(String, nullable=False)
     message_id = Column(Integer, ForeignKey("messages.id", ondelete="CASCADE"), nullable=False)
@@ -58,7 +81,24 @@ class MessageChunk(Base):
 
 class Message(Base):
     __tablename__ = "messages"
+    __table_args__ = (
+        # Композитные индексы для частых фильтраций
+        Index('idx_messages_chat_id_timestamp', 'chat_id', 'timestamp'),
+        Index('idx_messages_chat_id_sender_id', 'chat_id', 'sender_id'),
+        Index('idx_messages_timestamp', 'timestamp'),
+        Index('idx_messages_sender_id', 'sender_id'),
 
+        # Индекс для поиска по содержимому (триграмма)
+        Index('idx_messages_content_gin', 'content',
+              postgresql_using='gin',
+              postgresql_ops={'content': 'gin_trgm_ops'}),
+
+        # Уникальное ограничение для предотвращения дублей
+        UniqueConstraint('chat_id', 'message_id', name='uq_message_chat_message'),
+
+        # Check constraint для валидации
+        CheckConstraint('length(content) > 0', name='check_content_not_empty'),
+    )
     id = Column(Integer, primary_key=True)
     message_id = Column(String(255), nullable=False)
     chat_id = Column(String(255), nullable=False)
@@ -70,19 +110,39 @@ class Message(Base):
     platform = Column(String(50), nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.now())
     reply_to_message_id = Column(String(255), nullable=True)
+
     chunks = relationship("MessageChunk", back_populates="message", cascade="all, delete-orphan")
+    embeddings = relationship("MessageEmbedding", back_populates="message",
+                              cascade="all, delete-orphan", lazy='selectin')
+
 
 class MessageEmbedding(Base):
     __tablename__ = "message_embeddings"
-
+    __table_args__ = (
+        Index('idx_msg_embeddings_message_id', 'message_id'),
+        Index('idx_msg_embeddings_embedding_ivfflat', 'embedding',
+              postgresql_using='ivfflat',
+              postgresql_ops={'embedding': 'vector_cosine_ops'}),
+        Index('idx_msg_embeddings_created_at', 'created_at'),
+    )
     id = Column(Integer, primary_key=True)
     message_id = Column(Integer, ForeignKey("messages.id", ondelete="CASCADE"))
     embedding = Column(Vector(768))
     created_at = Column(TIMESTAMP, server_default=func.now())
 
+    message = relationship("Message", back_populates="embeddings", lazy='joined')
 
 class AnalysisReport(Base):
     __tablename__ = "analysis_reports"
+
+    __table_args__ = (
+        Index('idx_reports_chat_id_created_at', 'chat_id', 'created_at'),
+        Index('idx_reports_report_type_chat_id', 'report_type', 'chat_id'),
+        Index('idx_reports_created_at', 'created_at'),
+        Index('idx_reports_date_range', 'chat_id', 'date_range_start', 'date_range_end'),
+        Index('idx_reports_chat_type_created', 'chat_id', 'report_type', 'created_at'),
+        CheckConstraint("report_type IN ('review', 'compliance')", name='check_report_type'),
+    )
 
     id = Column(Integer, primary_key=True)
     chat_id = Column(String(255), nullable=False)
@@ -97,7 +157,22 @@ class AnalysisReport(Base):
 class UserChat(Base):
     """Связь пользователей с чатами"""
     __tablename__ = "user_chats"
+    __table_args__ = (
+        # Уникальное ограничение
+        UniqueConstraint('user_id', 'chat_id', name='uq_user_chat_unique'),
 
+        # Индексы для частых запросов
+        Index('idx_user_chats_user_id_selected', 'user_id', 'selected'),
+        Index('idx_user_chats_user_id_last_used', 'user_id', 'last_used'),
+        Index('idx_user_chats_chat_id', 'chat_id'),
+        Index('idx_user_chats_selected_idx', 'selected'),
+
+        # Композитный индекс для поиска по пользователю и дате
+        Index('idx_user_chats_user_lastused', 'user_id', 'last_used'),
+
+        # Check constraints
+        CheckConstraint('selected IN (0, 1)', name='check_selected_boolean'),
+    )
     id = Column(Integer, primary_key=True)
     user_id = Column(String(255), nullable=False)  # Telegram user ID
     chat_id = Column(String(255), nullable=False)  # Telegram chat ID
@@ -106,17 +181,15 @@ class UserChat(Base):
     last_used = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
     created_at = Column(TIMESTAMP, server_default=func.now())
 
-    # Составной уникальный индекс
-    __table_args__ = (
-        Index('idx_user_chat_unique', 'user_id', 'chat_id', unique=True),
-        Index('idx_user_selected', 'user_id', 'selected'),
-    )
-
 
 class UserSettings(Base):
     """Настройки пользователей"""
     __tablename__ = "user_settings"
-
+    __table_args__ = (
+        Index('idx_user_settings_user_id', 'user_id'),
+        Index('idx_user_settings_selected_chat', 'selected_chat_id'),
+        Index('idx_user_settings_updated', 'updated_at'),
+    )
     id = Column(Integer, primary_key=True)
     user_id = Column(String(255), nullable=False, unique=True)
     selected_chat_id = Column(String(255), nullable=True)  # Текущий выбранный чат

@@ -1,26 +1,21 @@
 # src/tasks/embedding_tasks.py
 import logging
 from typing import List, Optional
-from celery import shared_task
-from sqlalchemy import select
 from src.tasks.celery_app import celery_app
 from src.analyzers.embedding_service import embedding_service
 from src.database import crud
-from src.database import session
-from src.database.models import Message
 from src.tasks.utils import async_celery_task
-from src.database import models
 
 logger = logging.getLogger(__name__)
 
 
 @celery_app.task(
-    bind=True,
     name="generate_message_embeddings",
-    queue="embeddings"
+    queue="embeddings",
+    bind=True,
 )
 @async_celery_task(max_retries=3, default_retry_delay=60)
-async def generate_message_embeddings(message_db_id: int) -> dict:
+async def generate_message_embeddings(self, message_db_id: int) -> dict:
     """
     Генерация эмбеддингов для одного сообщения
 
@@ -50,9 +45,10 @@ async def generate_message_embeddings(message_db_id: int) -> dict:
 @celery_app.task(
     name="generate_batch_embeddings",
     queue="embeddings",
-    rate_limit="10/m"  # Не более 10 задач в минуту
+    rate_limit="10/m",  # Не более 10 задач в минуту
+    bind=True
 )
-def generate_batch_embeddings(message_ids: List[int]) -> dict:
+def generate_batch_embeddings(self, message_ids: List[int]) -> dict:
     """
     Массовая генерация эмбеддингов для нескольких сообщений
     (синхронная обертка, так как просто вызывает другие задачи)
@@ -76,10 +72,11 @@ def generate_batch_embeddings(message_ids: List[int]) -> dict:
 @celery_app.task(
     name="generate_missing_embeddings",
     queue="embeddings",
-    rate_limit="30/m"
+    rate_limit="30/m",
+    bind=True
 )
 @async_celery_task(max_retries=2)
-async def generate_missing_embeddings(chat_id: Optional[str] = None, limit: int = 100):
+async def generate_missing_embeddings(self, chat_id: Optional[str] = None, limit: int = 100):
     """
     Генерация эмбеддингов для всех сообщений без эмбеддингов
 
@@ -111,7 +108,7 @@ async def generate_missing_embeddings(chat_id: Optional[str] = None, limit: int 
     bind=True
 )
 @async_celery_task(max_retries=3, default_retry_delay=60)
-async def reindex_chat_embeddings(chat_id: str) -> dict:
+async def reindex_chat_embeddings(self, chat_id: str) -> dict:
     """
     Переиндексация всех сообщений часта (удаляет старые и создает новые эмбеддинги)
 

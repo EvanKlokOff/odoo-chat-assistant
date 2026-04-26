@@ -20,10 +20,9 @@ def get_llm_provider() -> BaseLLMProvider | None:
     if llm_provider is None:
         llm_provider = LLMFactory.create_llm_provider(
             provider_type=settings.llm_provider,
-            model=getattr(settings, 'ollama_llm_model', 'gemma3:27b'),
+            model=getattr(settings, 'ollama_llm_model'),
             base_url=settings.ollama_base_url,
             temperature=settings.llm_temperature,
-            model_size=getattr(settings, 'gemma3_model_size', '27b')
         )
         logger.info(f"LLM provider initialized: {settings.llm_provider}")
     return llm_provider
@@ -102,18 +101,44 @@ async def generate_review(state: AgentState) -> AgentState:
         for m in state["chat_messages"]
     ])
 
-    prompt = f"""Ты - эксперт по анализу чатов. Проанализируй следующие сообщения и предоставь краткое ревью.
+    prompt = f"""Ты - эксперт по анализу деловой переписки. Проанализируй диалог и извлеки структурированную информацию.
 
-Сообщения:
+## Правила анализа:
+1. Имена участников: используй ТОЛЬКО те имена, которые указаны в сообщениях (username, full name, first name)
+2. Не додумывай и не путай участников - если имя не указано, используй "Участник 1", "Участник 2"
+3. Все суммы, даты, условия фиксируй ТОЧНО как в тексте
+
+Анализируемые сообщения:
 {messages_text[:8000]}
 
-Пожалуйста, предоставь ревью в следующем формате:
-1. Общая тематика переписки
-2. Ключевые моменты и важные решения
-3. Основные участники и их роли
-4. Итог и рекомендации
+## Требуемый формат ответа:
 
-Ревью должно быть кратким, информативным и на русском языке."""
+### 1. ИНФОРМАЦИЯ О СДЕЛКЕ (если есть):
+- Статус сделки: [ЗАКЛЮЧЕНА / НЕ ЗАКЛЮЧЕНА / ОБСУЖДАЕТСЯ / НЕ УПОМИНАЕТСЯ]
+- Предмет сделки: [что именно обсуждается? товар, услуга, работа]
+- Ключевые условия: [перечисли цифрами]
+- Сумма и валюта: [если есть, точная цифра]
+- Сроки: [дедлайны, даты, периоды]
+
+### 2. УЧАСТНИКИ И РОЛИ:
+- Покупатель/Заказчик: [имя участника]
+- Продавец/Исполнитель: [имя участника]
+- Другие участники: [имя и роль]
+
+### 3. ПРИНЯТЫЕ РЕШЕНИЯ:
+- Решение 1: [что решили, кто предложил]
+- Решение 2: [если есть]
+
+### 4. НЕ РЕШЕННЫЕ ВОПРОСЫ (если есть):
+- Вопрос 1: [что осталось не согласовано]
+
+### 5. ИТОГ И РЕКОМЕНДАЦИИ:
+[2-3 предложения с выводами]
+
+## Важно:
+- Если информация отсутствует, пиши "НЕ УКАЗАНО"
+- Не добавляй предположения от себя
+- Пиши на русском языке, кратко и по делу"""
     llm = get_llm_provider()
     if not llm:
         raise exceptions.AnalysisException("No LLM provider")
@@ -155,7 +180,7 @@ async def check_compliance(state: AgentState) -> AgentState:
     if not llm:
         raise exceptions.AnalysisException("No LLM provider")
     response = await llm.generate(prompt)
-    state["analysis_result"] = response.content
+    state["analysis_result"] = response.content if hasattr(response, 'content') else str(response)
     return state
 
 

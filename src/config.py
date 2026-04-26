@@ -25,11 +25,11 @@ class Settings(BaseSettings):
     # Telegram
     telegram_bot_token: str = Field(default="")
     chat_per_page:int = Field(default=5, alias="CHAT_PER_PAGE")
+
     # LLM Provider Settings
     llm_provider: str = Field(default="gemma3")  # 'ollama', 'gemma3', 'mock', 'openai'
     embedding_provider: str = Field(default="nomic")  # 'ollama', 'nomic', 'openai'
     llm_temperature: float = Field(default=0.1)
-    gemma3_model_size: str = Field(default="27b")  # '2b', '12b', '27b'
 
     # Legacy (для обратной совместимости)
     embedding_model: str = Field(default="nomic-embed-text")
