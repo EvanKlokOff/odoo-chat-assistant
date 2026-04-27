@@ -58,9 +58,8 @@ async def get_chunks_count_by_chat(chat_id: str) -> int:
 
 async def get_message_by_db_id(db_id: int) -> models.Message|None:
     """Get message by internal database ID"""
-    from src.database.session import AsyncSessionLocal
 
-    async with AsyncSessionLocal() as db:
+    async with get_db_context() as db:
         stmt = select(models.Message).where(models.Message.id == db_id)
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
@@ -68,9 +67,8 @@ async def get_message_by_db_id(db_id: int) -> models.Message|None:
 
 async def get_messages_without_embeddings(chat_id: str|None = None, limit: int = 100) -> list[models.Message]:
     """Получает сообщения без эмбеддингов"""
-    from src.database.session import AsyncSessionLocal
 
-    async with AsyncSessionLocal() as db:
+    async with get_db_context() as db:
         # LEFT JOIN для поиска сообщений без чанков
         stmt = select(models.Message).outerjoin(
             models.MessageChunk, models.Message.id == models.MessageChunk.message_id

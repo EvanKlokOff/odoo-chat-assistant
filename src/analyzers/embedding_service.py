@@ -2,7 +2,7 @@
 import logging
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-from sqlalchemy import select, func, desc
+from sqlalchemy import select, func, desc, delete
 from src.database.session import get_db_context
 from src.database.models import Message, MessageChunk
 from src.llm.factory import LLMFactory
@@ -73,9 +73,8 @@ class EmbeddingService:
         async with get_db_context() as db:
             # Удаляем старые чанки для этих сообщений
             message_ids = [msg.id for msg in messages]
-            await db.execute(
-                select(MessageChunk).where(MessageChunk.message_id.in_(message_ids)).delete()
-            )
+            stmt = delete(MessageChunk).where(MessageChunk.message_id.in_(message_ids))
+            await db.execute(stmt)
 
             db.add_all(all_chunks)
             await db.commit()
