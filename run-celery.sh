@@ -109,7 +109,7 @@ start_worker_fast() {
 
     exec celery -A src.tasks.celery_app worker \
         --loglevel=INFO \
-        --pool=gevent \
+        --pool=prefork \
         --concurrency="$FAST_CONCURRENCY" \
         --queues=default,high_priority \
         --prefetch-multiplier=1

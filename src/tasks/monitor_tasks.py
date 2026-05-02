@@ -52,6 +52,7 @@ async def monitor_analysis_tasks():
                 user_id=task.user_id,
                 text=text,
                 task_id=task.task_id
+
             )
 
         return {"status": "success", "processed": len(unnotified_tasks)}

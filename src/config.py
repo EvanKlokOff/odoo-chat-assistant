@@ -50,6 +50,8 @@ class Settings(BaseSettings):
     enable_conversation_memory: bool = True
 
     # Celery
+    REDBEAT_LOCK_TIMEOUT: int = Field(default=60, alias="REDBEAT_LOCK_TIMEOUT")
+    REDBEAT_LOCK_RENEWAL: int = Field(default=30, alias="REDBEAT_LOCK_RENEWAL")
     task_monitor_interval: float = Field(default=3.0, alias="TASK_MONITOR_INTERVAL")
     celery_broker_url: Optional[str] = Field(default=None, alias="CELERY_BROKER_URL")
     celery_result_backend: Optional[str] = Field(default=None, alias="CELERY_RESULT_BACKEND")

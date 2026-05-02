@@ -87,8 +87,9 @@ celery_app.conf.beat_schedule = {
 
 # ВАЖНО: Настройки RedBeat scheduler
 celery_app.conf.redbeat_redis_url = settings.redis_url
-celery_app.conf.redbeat_lock_timeout = 1500  # 25 минут
 celery_app.conf.redbeat_key_prefix = 'redbeat:'
+celery_app.conf.redbeat_lock_timeout = settings.REDBEAT_LOCK_TIMEOUT  # 60 секунд вместо 25 минут
+celery_app.conf.redbeat_lock_renewal = settings.REDBEAT_LOCK_RENEWAL  # Обновление каждые 30 секунд
 
 # Принудительно устанавливаем scheduler
 celery_app.conf.beat_scheduler = 'redbeat.RedBeatScheduler'
@@ -112,9 +113,9 @@ def on_worker_shutdown(**kwargs):
 @celery_app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
     """Принудительная регистрация периодических задач"""
+
     from src.tasks.monitor_tasks import monitor_analysis_tasks
     from src.tasks.embedding_tasks import generate_missing_embeddings
-
     # Добавляем задачи, если их нет в Redis
     sender.add_periodic_task(
         3.0,  # Каждые 3 секунды
