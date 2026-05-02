@@ -4,7 +4,6 @@ from aiogram import types
 from aiogram.types import ChatMemberUpdated
 from src.database.crud import add_user_chat
 from src.database.crud import save_message
-from src.analyzers.embedding_service import embedding_service
 from src.tasks import embedding_tasks
 logger = logging.getLogger(__name__)
 

@@ -234,7 +234,8 @@ async def handle_review_date_selection(callback: types.CallbackQuery, state: FSM
         await state.clear()  # Очищаем состояние
 
         # Запускаем анализ
-        await utils.run_review_analysis(callback.message, chat_id, date_start, date_end)
+        #await utils.run_review_analysis(callback.message, chat_id, date_start, date_end)
+        await utils.run_review_analysis_async(callback.message,chat_id, date_start, date_end)
         return
 
 
@@ -446,8 +447,8 @@ async def handle_compliance_instruction(message: types.Message, state: FSMContex
     await state.clear()
 
     # Запускаем анализ
-    await utils.run_compliance_analysis(message, chat_id, instruction, date_start, date_end)
-
+    #await utils.run_compliance_analysis(message, chat_id, instruction, date_start, date_end)
+    await utils.run_compliance_analysis_async(message, chat_id, instruction, date_start, date_end)
 
 async def handle_cancel_callback(callback: types.CallbackQuery, state: FSMContext):
     """Handle cancel callbacks"""
@@ -497,8 +498,8 @@ async def process_review_custom_date_text(message: types.Message, state: FSMCont
         )
 
         await state.clear()
-        await utils.run_review_analysis(message, chat_id, date_start, date_end)
-
+        #await utils.run_review_analysis(message, chat_id, date_start, date_end)
+        await utils.run_review_analysis_async(message, chat_id, date_start, date_end)
     except ValueError:
         await message.answer(
             "❌ Неверный формат даты. Используйте ДД.ММ.ГГГГ\n"

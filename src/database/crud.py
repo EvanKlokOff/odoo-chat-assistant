@@ -1,15 +1,86 @@
 import logging
 from datetime import datetime
-from sqlalchemy import select
-from sqlalchemy import func
+from sqlalchemy import select, and_, update, func
+
+from src.database import enums
 from src.database import models
 from src.database.session import get_db_context
-
+from src.database.models import UserChat, UserSettings, AnalysisTask
 
 logger = logging.getLogger(__name__)
 
 
-# src/database/crud.py - добавьте эти ДВА метода в конец файла
+async def create_analysis_task(
+        user_id: int,
+        chat_id: str,
+        task_type: str,  # "review" or "compliance"
+        task_id: str,
+        instruction: str | None = None,
+        date_start: str | None = None,
+        date_end: str | None = None
+) -> AnalysisTask:
+    """Создает запись о задаче анализа"""
+    async with get_db_context() as session:
+        task = AnalysisTask(
+            task_id=task_id,
+            user_id=user_id,
+            chat_id=chat_id,
+            task_type=task_type,
+            instruction=instruction,
+            date_start=date_start,
+            date_end=date_end,
+            status="pending",
+            progress=0,
+            is_notified=False,
+            created_at=datetime.utcnow()
+        )
+        session.add(task)
+        await session.commit()
+        await session.refresh(task)
+        return task
+
+
+async def update_analysis_task(
+        task_id: str,
+        status: str | None = None,
+        progress: int | None = None,
+        result: str | None = None,
+        error: str | None = None,
+        message: str | None = None,
+        is_notified: bool | None = None,
+):
+    """Обновляет статус задачи анализа"""
+    async with get_db_context() as session:
+        stmt = update(AnalysisTask).where(AnalysisTask.task_id == task_id)
+
+        update_data = {}
+        if status is not None:
+            update_data["status"] = status
+            if status == "completed":
+                update_data["completed_at"] = datetime.utcnow()
+        if progress is not None:
+            update_data["progress"] = progress
+        if result is not None:
+            update_data["result"] = result
+        if error is not None:
+            update_data["error"] = error
+        if message is not None:
+            update_data["message"] = message
+        if is_notified is not None:
+            update_data["is_notified"] = is_notified
+
+        if update_data:
+            await session.execute(stmt.values(**update_data))
+            await session.commit()
+
+
+async def get_analysis_task(task_id: str) -> AnalysisTask | None:
+    """Получает задачу анализа по ID"""
+    async with get_db_context() as session:
+        stmt = select(AnalysisTask).where(AnalysisTask.task_id == task_id)
+        result = await session.execute(stmt)
+        return result.scalar_one_or_none()
+
 
 async def delete_chunks_by_chat(chat_id: str) -> int:
     """
@@ -56,7 +127,8 @@ async def get_chunks_count_by_chat(chat_id: str) -> int:
         result = await db.execute(stmt)
         return result.scalar() or 0
 
-async def get_message_by_db_id(db_id: int) -> models.Message|None:
+
+async def get_message_by_db_id(db_id: int) -> models.Message | None:
     """Get message by internal database ID"""
 
     async with get_db_context() as db:
@@ -65,7 +137,7 @@ async def get_message_by_db_id(db_id: int) -> models.Message|None:
         return result.scalar_one_or_none()
 
 
-async def get_messages_without_embeddings(chat_id: str|None = None, limit: int = 100) -> list[models.Message]:
+async def get_messages_without_embeddings(chat_id: str | None = None, limit: int = 100) -> list[models.Message]:
     """Получает сообщения без эмбеддингов"""
 
     async with get_db_context() as db:
@@ -81,6 +153,7 @@ async def get_messages_without_embeddings(chat_id: str|None = None, limit: int =
 
         result = await db.execute(stmt)
         return result.scalars().all()
+
 
 async def save_message(
         chat_id: str,
@@ -225,8 +298,6 @@ async def get_chat_messages_by_chat_id(
 
 
 # Добавьте в crud.py после существующих импортов
-from sqlalchemy import and_, update
-from src.database.models import UserChat, UserSettings
 
 
 async def add_user_chat(user_id: int, chat_id: str, chat_title: str | None = None):
@@ -391,3 +462,36 @@ async def get_chat_info_by_id(chat_id: str) -> dict | None:
         title = result.scalar_one_or_none()
 
         return {"chat_id": chat_id, "title": title} if title else None
+
+
+async def get_unnotified_finished_tasks() -> list[models.AnalysisTask]:
+    """
+    Получает список задач, которые перешли в конечный статус (завершено/ошибка),
+    но пользователь об этом еще не уведомлен.
+    """
+    async with get_db_context() as session:
+        stmt = select(models.AnalysisTask).where(
+            and_(
+                models.AnalysisTask.status.in_([
+                    enums.TaskStatus.COMPLETED,
+                    enums.TaskStatus.FAILED
+                ]),
+                models.AnalysisTask.is_notified == False
+            )
+        )
+        result = await session.execute(stmt)
+        return list(result.scalars().all())
+
+
+async def mark_task_as_notified(task_id: str):
+    """
+    Помечает задачу как 'уведомленную', чтобы исключить повторную отправку.
+    """
+    async with get_db_context() as session:
+        stmt = (
+            update(models.AnalysisTask)
+            .where(models.AnalysisTask.task_id == task_id)
+            .values(is_notified=True)
+        )
+        await session.execute(stmt)
+        # commit() вызывается автоматически внутри get_db_context

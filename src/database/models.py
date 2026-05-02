@@ -1,12 +1,50 @@
+import datetime
 from sqlalchemy import (Column, Integer, String, Text, TIMESTAMP,
                         ForeignKey, Index, DateTime, UniqueConstraint,
-                        ColumnElement, CheckConstraint)
+                        ColumnElement, CheckConstraint, BigInteger, Enum as SAEnum, Boolean)
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.sql import func, text
+from sqlalchemy.sql import func
 from pgvector.sqlalchemy import Vector
 from sqlalchemy.orm import relationship
+from src.database import enums
 
 Base = declarative_base()
+
+
+class AnalysisTask(Base):
+    __tablename__ = "analysis_tasks"
+
+    id = Column(Integer, primary_key=True)
+    task_id = Column(String(100), unique=True, index=True, nullable=False)
+    user_id = Column(BigInteger, nullable=False, index=True)
+    chat_id = Column(String(100), nullable=False, index=True)
+    task_type = Column(SAEnum(
+        enums.TaskType,
+        values_callable=lambda enum_cls: [e.value for e in enum_cls]
+    ), nullable=False)  # review, compliance
+
+    instruction = Column(Text, nullable=True)
+    date_start = Column(String(50), nullable=True)
+    date_end = Column(String(50), nullable=True)
+
+    is_notified = Column(Boolean, default=False, index=True)
+    status = Column(SAEnum(
+        enums.TaskStatus,
+        values_callable=lambda enum_cls: [e.value for e in enum_cls]
+    ), default="pending", index=True)  # pending, running, completed, failed
+    progress = Column(Integer, default=0)
+    result = Column(Text, nullable=True)
+    error = Column(Text, nullable=True)
+    message = Column(String(500), nullable=True)
+
+    created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC))
+    completed_at = Column(DateTime, nullable=True)
+
+    # Индексы для быстрого поиска
+    __table_args__ = (
+        Index('ix_tasks_user_status', 'user_id', 'status'),
+        Index('ix_tasks_created', 'created_at'),
+    )
 
 
 class MessageChunk(Base):
@@ -131,6 +169,7 @@ class MessageEmbedding(Base):
     created_at = Column(TIMESTAMP, server_default=func.now())
 
     message = relationship("Message", back_populates="embeddings", lazy='joined')
+
 
 class AnalysisReport(Base):
     __tablename__ = "analysis_reports"

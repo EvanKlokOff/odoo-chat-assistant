@@ -4,7 +4,7 @@ from typing import List, Optional
 from src.tasks.celery_app import celery_app
 from src.analyzers.embedding_service import embedding_service
 from src.database import crud
-from src.tasks.utils import async_celery_task
+from src.tasks.utils import async_celery_task, async_celery_task_bind
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
     queue="embeddings",
     bind=True,
 )
-@async_celery_task(max_retries=3, default_retry_delay=60)
+@async_celery_task_bind(max_retries=3, default_retry_delay=60)
 async def generate_message_embeddings(self, message_db_id: int) -> dict:
     """
     Генерация эмбеддингов для одного сообщения
@@ -73,10 +73,9 @@ def generate_batch_embeddings(self, message_ids: List[int]) -> dict:
     name="generate_missing_embeddings",
     queue="embeddings",
     rate_limit="30/m",
-    bind=True
 )
 @async_celery_task(max_retries=2)
-async def generate_missing_embeddings(self, chat_id: Optional[str] = None, limit: int = 100):
+async def generate_missing_embeddings(chat_id: Optional[str] = None, limit: int = 100):
     """
     Генерация эмбеддингов для всех сообщений без эмбеддингов
 
@@ -107,7 +106,7 @@ async def generate_missing_embeddings(self, chat_id: Optional[str] = None, limit
     queue="embeddings",
     bind=True
 )
-@async_celery_task(max_retries=3, default_retry_delay=60)
+@async_celery_task_bind(max_retries=3, default_retry_delay=60)
 async def reindex_chat_embeddings(self, chat_id: str) -> dict:
     """
     Переиндексация всех сообщений часта (удаляет старые и создает новые эмбеддинги)

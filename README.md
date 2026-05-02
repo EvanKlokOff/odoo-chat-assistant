@@ -1,247 +1,284 @@
-# Анализатор чатов с интеграцией odoo
+```markdown
+# Инструкция по запуску Telegram бота с Celery
 
-# Чат-Аналитик Бот 🤖
+## 📋 Требования
 
-Бот для анализа групповых чатов Telegram с использованием LLM (Gemma 3) и векторных эмбеддингов.
+- Docker и Docker Compose
+- Python 3.9+
+- Git
+- Ollama (установленный локально или на сервере)
 
-## Возможности
+---
 
-- 📊 **Анализ переписки** - ревью сообщений за указанный период
-- ✅ **Проверка соответствия** (в разработке) - проверка чата на соответствие инструкции
-- 🎯 **Мульти-чат поддержка** - бот может анализировать несколько чатов, управление через ЛС
-
-## Требования
-
-- Python 3.14+
-- Docker & Docker Compose
-- Ollama (для LLM)
-- PostgreSQL с pgvector
-
-## Установка и запуск
+## 🚀 Пошаговая инструкция
 
 ### 1. Клонирование репозитория
 
 ```bash
-git clone <your-repo>
-cd odoo-chat-assistant
+git clone <your-repository-url>
+cd <project-directory>
 ```
 
-### 2. Настройка окружения
+### 2. Настройка переменных окружения
+
+Создайте файл `.env` в корне проекта:
 
 ```bash
-# Копируем файл с переменными окружения
-cp .env.example .env
-
-# Редактируем .env файл
-nano .env  # или любой другой редактор
+nano .env
 ```
 
-**Обязательные параметры в `.env`:**
+Скопируйте туда следующий конфиг, заменив значения на свои(также это можно сделать из .env.example):
 
 ```env
-# Telegram Bot Token (получить у @BotFather)
-TELEGRAM_BOT_TOKEN=your_bot_token_here
-
 # Database
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/chat_analyzer
+DB_PASSWORD=your_secure_db_password
+DATABASE_URL=postgresql://analyzer:your_secure_db_password@postgres:5432/chat_analyzer
+
+# Telegram Bot
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
+CHAT_PER_PAGE=5
 
 # Ollama
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_LLM_MODEL=gemma3:27b
+OLLAMA_BASE_URL=http://host.docker.internal:11434
+OLLAMA_LLM_MODEL=qwen2.5:7b
 OLLAMA_EMBEDDING_MODEL=nomic-embed-text
 
-# LLM Settings
+# LLM Provider Settings
 LLM_PROVIDER=ollama
-LLM_TEMPERATURE=0.7
+EMBEDDING_PROVIDER=nomic
+LLM_TEMPERATURE=0.1
+
+# Application Settings
+LOG_LEVEL=INFO
+MONITOR_INTERVAL=300
+LLM_CONTEXT_SIZE=4096
+LLM_MAX_TOKENS=2048
+
+# Celery
+CELERY_BROKER_URL=redis://:secure_redis_password@localhost:6379/0
+CELERY_RESULT_BACKEND=redis://:secure_redis_password@localhost:6379/0
+CELERY_POOL_TYPE=threads
+CELERY_CONCURRENCY=10
+TASK_MONITOR_INTERVAL=3.0
+
+# Database Redis
+REDIS_PASSWORD=secure_redis_password
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_DB=0
+REDIS_URL=redis://:secure_redis_password@localhost:6379/0
+REDIS_MAXMEMORY=256mb
+REDIS_MAXMEMORY_POLICY=allkeys-lru
+REDIS_KEY_EXPIRATION=86400
 ```
 
-### 3. Запуск базы данных
-
-Создайте файл `docker-compose.bot.yaml`:
-
-Запустите базу данных:
+### 3. Запуск баз данных (PostgreSQL и Redis)
 
 ```bash
+# Запуск контейнеров для бота
 docker-compose -f docker-compose.bot.yaml up -d
+
+# Проверка статуса контейнеров
+docker-compose -f docker-compose.bot.yaml ps
+
+# Просмотр логов (при необходимости)
+docker-compose -f docker-compose.bot.yaml logs -f
 ```
 
-### 4. Установка Ollama и моделей
+**Ожидаемый результат:**
+- Контейнер `chat_analyzer_db` запущен и здоров
+- Контейнер `chat-analyzer-redis_db` запущен и здоров
 
-#### Установка Ollama (macOS/Linux):
-
-```bash
-# macOS
-curl -fsSL https://ollama.com/install.sh | sh
-
-# Linux
-curl -fsSL https://ollama.com/install.sh | sh
-```
-
-#### Загрузка моделей:
+### 4. Установка зависимостей Python
 
 ```bash
-# Загружаем LLM модель (27B - требует ~16GB RAM)
-ollama pull gemma3:27b
+# Создание виртуального окружения
+python3 -m venv venv
 
-# Загружаем эмбеддинг модель (легковесная)
-ollama pull nomic-embed-text
-```
-
-**Альтернативные модели:**
-
-```bash
-# Если 27B слишком тяжелая, можно использовать:
-ollama pull gemma3:12b  # ~8GB RAM
-ollama pull gemma3:4b    # ~3GB RAM
-ollama pull llama3.2:3b  # альтернатива
-```
-
-Для других моделей можно написать реализацию соответствующего интерфейса
-
-### 5. Настройка Python окружения
-
-```bash
-# Создаем виртуальное окружение
-python3.14 -m venv .venv
-
-# Активируем
-source .venv/bin/activate  # Linux/macOS
+# Активация виртуального окружения
+source venv/bin/activate  # Linux/Mac
 # или
-.venv\Scripts\activate     # Windows
+venv\Scripts\activate  # Windows
 
-# Устанавливаем зависимости
+# Установка зависимостей
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 6. Инициализация базы данных
+### 5. Проверка подключения к базам данных
 
 ```bash
-# Создаем таблицы и запускаем миграции
-alembic upgrade head
+# Проверка PostgreSQL
+docker exec -it chat_analyzer_db pg_isready -U analyzer -d chat_analyzer
+
+# Проверка Redis
+docker exec -it chat-analyzer-redis_db redis-cli -a secure_redis_password ping
+# Должен вернуть: PONG
 ```
 
-### 7. Запуск бота
+### 6. Запуск Celery задач
+
+Откройте **первый терминал** — запуск воркера для эмбеддингов:
 
 ```bash
-# Активируем виртуальное окружение (если еще не активировано)
-source .venv/bin/activate
-
-# Запускаем бота
-python -m src.main
+source venv/bin/activate
+chmod +x run-celery.sh
+./run-celery.sh worker-embeddings
 ```
 
-Или если используете `main.py`:
+Откройте **второй терминал** — запуск воркера для анализа (LLM):
 
 ```bash
-python src/main.py
+source venv/bin/activate
+./run-celery.sh worker-analysis
 ```
 
-## Использование бота
-
-### Команды
-
-| Команда | Описание | Где работает |
-|---------|----------|--------------|
-| `/start` | Приветственное сообщение | ЛС |
-| `/help` | Помощь | ЛС |
-| `/review to_day` | Анализ за сегодня | Любой чат |
-| `/review to_hour` | Анализ за последний час | Любой чат |
-| `/review to_N_hour` | Анализ за N часов (1-24) | Любой чат |
-| `/review ДД.ММ.ГГГГ` | Анализ с указанной даты | Любой чат |
-| `/review ДД.ММ.ГГГГ ДД.ММ.ГГГГ` | Анализ за период | Любой чат |
-
-### Примеры использования
+Откройте **третий терминал** — запуск Celery Beat (планировщик):
 
 ```bash
-# Анализ переписки за сегодня
-/review to_day
-
-# Анализ за последние 6 часов
-/review to_6_hour
-
-# Анализ за конкретную дату
-/review 15.04.2026
-
-# Анализ за период
-/review 01.04.2026 15.04.2026
+source venv/bin/activate
+./run-celery.sh beat
 ```
 
-### Работа с несколькими чатами
-
-1. **Добавьте бота в групповой чат**
-2. **Напишите любое сообщение в группе** - бот начнет сохранять историю
-3. **В личном диалоге с ботом:**
-   - Используйте `/review to_day` - анализирует последний активный чат
-   - Или просто используйте команды прямо в групповом чате
-
-## Структура ответа бота
-
-При успешном анализе бот возвращает:
-
-```
-📊 Результат анализа:
-
-1. Общая тематика переписки
-   - Краткое описание о чем чат
-
-2. Ключевые моменты и важные решения
-   - Перечисление важных событий
-
-3. Основные участники и их роли
-   - Кто активно участвовал
-
-4. Итог и рекомендации
-   - Выводы и предложения
-```
-
-## Управление ботом
-
-### Просмотр логов
+**Альтернативный вариант:** все воркеры одной командой в фоне:
 
 ```bash
-# Логи будут выводиться в консоль
-# Также можно настроить файловое логирование в .env
+./run-celery.sh all
 ```
 
-### Остановка бота
+### 7. Запуск Telegram бота
+
+Откройте **четвертый терминал**:
 
 ```bash
-# Ctrl+C в терминале с ботом
+source venv/bin/activate
+python -m src.bot
+```
 
-# Остановка базы данных
+или если бот находится в другом месте:
+
+```bash
+python bot.py
+```
+
+### 8. Проверка статуса всех сервисов
+
+```bash
+# Статус Celery
+./run-celery.sh status
+
+# Статус контейнеров Docker
+docker-compose -f docker-compose.bot.yaml ps
+
+# Просмотр логов бота
+tail -f logs/bot.log  # если логи настроены
+```
+
+---
+
+## 🛠️ Полезные команды
+
+### Остановка всех сервисов
+
+```bash
+# Остановка Celery воркеров
+./run-celery.sh stop
+
+# Остановка контейнеров Docker
 docker-compose -f docker-compose.bot.yaml down
 
-# Остановка Ollama (если запущен как сервис)
-ollama stop
+# Деактивация виртуального окружения
+deactivate
 ```
 
-### Запуск тестов
+### Перезапуск с чистыми базами данных
 
 ```bash
-# Запуск всех тестов
-pytest
+# Остановка и удаление томов (ВНИМАНИЕ: удалит все данные!)
+docker-compose -f docker-compose.bot.yaml down -v
 
-# С конкретным модулем
-pytest tests/test_analyzers.py
+# Запуск заново
+docker-compose -f docker-compose.bot.yaml up -d
 ```
 
-## Требования к системе
+### Просмотр логов отдельных сервисов
 
-| Компонент | Минимум | Рекомендуется |
-|-----------|---------|---------------|
-| RAM | 16GB | 32GB+ |
-| CPU | 4 ядра | 8+ ядер |
-| Диск | 20GB | 50GB+ |
-| GPU | - | NVIDIA с 8GB+ VRAM |
+```bash
+# Логи PostgreSQL
+docker logs chat_analyzer_db
 
-## Безопасность
+# Логи Redis
+docker logs chat-analyzer-redis_db
 
-- **Токен бота** хранится только в `.env` (не коммитить!)
-- **База данных** изолирована в Docker
-- **Логи** не содержат чувствительных данных
-- **Команды управления** работают только в ЛС
+# Логи Celery (если запущены в фоне)
+tail -f logs/analysis_worker.log
+tail -f logs/embeddings_worker.log
+tail -f logs/fast_worker.log
+```
 
-## Поддержка
+---
 
-При возникновении проблем создайте Issue в репозитории проекта.
+## 📁 Структура проекта (ожидаемая)
+
+```
+project/
+├── .env                          # Переменные окружения
+├── requirements.txt              # Зависимости Python
+├── docker-compose.bot.yaml       # Docker Compose для бота
+├── run-celery.sh                 # Скрипт запуска Celery
+├── init.sql                      # Инициализация БД
+├── redis_db.conf                 # Конфиг Redis
+├── src/
+│   ├── bot.py                    # Точка входа бота
+│   ├── tasks/
+│   │   └── celery_app.py         # Celery приложение
+│   └── ...                       # Другие модули
+└── logs/                         # Директория с логами
+```
+
+---
+
+
+### 4. Права на выполнение скрипта
+
+```bash
+chmod +x run-celery.sh
+```
+
+---
+
+## ✅ Чеклист успешного запуска
+
+- [ ] Docker контейнеры запущены и здоровы (`docker ps`)
+- [ ] Виртуальное окружение активировано (`which python`)
+- [ ] Зависимости установлены (`pip list`)
+- [ ] Файл `.env` настроен корректно
+- [ ] Redis отвечает на PING
+- [ ] PostgreSQL принимает подключения
+- [ ] Celery worker-embeddings запущен
+- [ ] Celery worker-analysis запущен
+- [ ] Celery beat запущен
+- [ ] Telegram бот запущен и отвечает
+- [ ] Ollama работает (`ollama list`)
+
+---
+
+## 🎯 Оптимальный порядок запуска (кратко)
+
+```bash
+# 1. Базы данных
+docker-compose -f docker-compose.bot.yaml up -d
+
+# 2. Активация окружения
+source venv/bin/activate
+
+# 3. Celery воркеры (3 терминала)
+./run-celery.sh worker-embeddings   # терминал 1
+./run-celery.sh worker-analysis     # терминал 2
+./run-celery.sh beat                # терминал 3
+
+# 4. Бот
+python -m src.bot                    # терминал 4
+```
+
+---

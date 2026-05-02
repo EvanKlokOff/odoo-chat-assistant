@@ -4,7 +4,7 @@ from typing import Dict, Optional
 from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from interfaces.telegram import keyboards
+from src.interfaces.telegram import keyboards
 from src.database import crud
 from src.config import settings
 

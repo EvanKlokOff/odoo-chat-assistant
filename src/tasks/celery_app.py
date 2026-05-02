@@ -14,10 +14,12 @@ celery_app = Celery(
     backend=settings.redis_url,
     include=[
         "src.tasks.embedding_tasks",
+        "src.tasks.analysis_tasks",
+        "src.tasks.monitor_tasks"
     ]
 )
 
-# Остальные настройки остаются без изменений
+# Настройки Celery
 celery_app.conf.update(
     task_serializer="json",
     accept_content=["json"],
@@ -48,6 +50,10 @@ celery_app.conf.update(
             "exchange": "embeddings",
             "routing_key": "embeddings",
         },
+        "analysis": {
+            "exchange": "analysis",
+            "routing_key": "analysis",
+        },
         "high_priority": {
             "exchange": "high_priority",
             "routing_key": "high_priority",
@@ -61,6 +67,7 @@ celery_app.conf.update(
     result_accept_content=["json"],
 )
 
+# Настройки Beat с RedBeat
 celery_app.conf.beat_schedule = {
     "generate-missing-embeddings": {
         "task": "generate_missing_embeddings",
@@ -71,7 +78,20 @@ celery_app.conf.beat_schedule = {
         "task": "celery.backend_cleanup",
         "schedule": crontab(minute=0, hour="*/1"),
     },
+    "monitor-active-tasks": {
+        "task": "monitor_analysis_tasks",
+        "schedule": 3.0,  # Временная константа для теста
+        "options": {"queue": "default"}
+    },
 }
+
+# ВАЖНО: Настройки RedBeat scheduler
+celery_app.conf.redbeat_redis_url = settings.redis_url
+celery_app.conf.redbeat_lock_timeout = 1500  # 25 минут
+celery_app.conf.redbeat_key_prefix = 'redbeat:'
+
+# Принудительно устанавливаем scheduler
+celery_app.conf.beat_scheduler = 'redbeat.RedBeatScheduler'
 
 
 @worker_ready.connect
@@ -88,5 +108,29 @@ def on_worker_shutdown(**kwargs):
     on_worker_shutdown()
 
 
+# Принудительная регистрация задач для Beat
+@celery_app.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    """Принудительная регистрация периодических задач"""
+    from src.tasks.monitor_tasks import monitor_analysis_tasks
+    from src.tasks.embedding_tasks import generate_missing_embeddings
+
+    # Добавляем задачи, если их нет в Redis
+    sender.add_periodic_task(
+        3.0,  # Каждые 3 секунды
+        monitor_analysis_tasks.s(),
+        name='monitor-active-tasks',
+        queue='default'
+    )
+    sender.add_periodic_task(
+        300.0,  # Каждые 5 минут
+        generate_missing_embeddings.s(),
+        name='generate-missing-embeddings',
+        queue='embeddings'
+    )
+    logger.info("✅ Periodic tasks registered")
+
+
 logger.info(f"✅ Celery app configured with broker: {celery_app.conf.broker_url}")
 logger.info(f"   Queues: {list(celery_app.conf.task_queues.keys())}")
+logger.info(f"   Beat scheduler: {celery_app.conf.beat_scheduler}")

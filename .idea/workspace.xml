@@ -1,14 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="55a1370a-10e4-4600-8281-b944b6da5411" name="Changes" comment="Добавление индексов">
-      <change afterPath="$PROJECT_DIR$/src/tasks/worker_startup.py" afterDir="false" />
+    <list default="true" id="55a1370a-10e4-4600-8281-b944b6da5411" name="Changes" comment="Стабильная работа celery для генерации эмбедингов">
+      <change afterPath="$PROJECT_DIR$/src/database/enums.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/tasks/analysis_tasks.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/tasks/monitor_tasks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/run-celery.sh" beforeDir="false" afterPath="$PROJECT_DIR$/run-celery.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/analyzers/embedding_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/analyzers/embedding_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/database/crud.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/crud.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/telegram/bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/telegram/bot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/telegram/chat_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/telegram/chat_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/telegram/handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/telegram/handlers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/telegram/message_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/telegram/message_handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/telegram/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/telegram/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/redis_db/session.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/redis_db/session.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/tasks/celery_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tasks/celery_app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tasks/embedding_tasks.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tasks/embedding_tasks.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/tasks/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tasks/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tasks/worker_startup.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tasks/worker_startup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -247,7 +261,11 @@
       <workItem from="1777193844381" duration="140000" />
       <workItem from="1777202142203" duration="8870000" />
       <workItem from="1777226901179" duration="6256000" />
-      <workItem from="1777318456446" duration="1302000" />
+      <workItem from="1777318456446" duration="4264000" />
+      <workItem from="1777372443632" duration="2239000" />
+      <workItem from="1777602465547" duration="5931000" />
+      <workItem from="1777623965907" duration="15033000" />
+      <workItem from="1777714421858" duration="549000" />
     </task>
     <task id="LOCAL-00001" summary="Init commit">
       <option name="closed" value="true" />
@@ -305,7 +323,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777231546173</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Стабильная работа celery для генерации эмбедингов">
+      <option name="closed" value="true" />
+      <created>1777319920019</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1777319920019</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -328,7 +354,8 @@
     <MESSAGE value="Добавление красивых кнопок + RAG для переписок" />
     <MESSAGE value="Добавление миграции" />
     <MESSAGE value="Добавление индексов" />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавление индексов" />
+    <MESSAGE value="Стабильная работа celery для генерации эмбедингов" />
+    <option name="LAST_COMMIT_MESSAGE" value="Стабильная работа celery для генерации эмбедингов" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -373,12 +400,16 @@
           <line>159</line>
           <option name="timeStamp" value="28" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/interfaces/telegram/handlers.py</url>
+          <option name="timeStamp" value="29" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/odoo_chat_assistant$pytest_for_tests_test_message_handling_test_handle_new_message_success.coverage" NAME="pytest for tests.test_message_handling.test_handle_new_message_success Coverage Results" MODIFIED="1777117212358" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/odoo_chat_assistant$main.coverage" NAME="main Coverage Results" MODIFIED="1777319642515" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/odoo_chat_assistant$main.coverage" NAME="main Coverage Results" MODIFIED="1777648067798" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/odoo_chat_assistant$.coverage" NAME=" Coverage Results" MODIFIED="1776018033029" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

@@ -5,12 +5,14 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class Settings(BaseSettings):
     # Database Postgresql
-    database_url: str = Field(default=f"postgresql://analyzer:password@localhost:5432/chat_analyzer", alias="DATABASE_URL")
+    database_url: str = Field(default=f"postgresql://analyzer:password@localhost:5432/chat_analyzer",
+                              alias="DATABASE_URL")
     db_password: Optional[str] = Field(default=None, alias="DB_PASSWORD")
 
-    #Database Redis
+    # Database Redis
     redis_url: str = Field(default=None, alias="REDIS_URL")  # URL для подключения к Redis
     redis_password: Optional[str] = Field(default=None, alias="REDIS_PASSWORD")
     redis_db: Optional[str] = Field(default=None, alias="REDIS_DB")
@@ -24,7 +26,7 @@ class Settings(BaseSettings):
 
     # Telegram
     telegram_bot_token: str = Field(default="")
-    chat_per_page:int = Field(default=5, alias="CHAT_PER_PAGE")
+    chat_per_page: int = Field(default=5, alias="CHAT_PER_PAGE")
 
     # LLM Provider Settings
     llm_provider: str = Field(default="gemma3")  # 'ollama', 'gemma3', 'mock', 'openai'
@@ -36,7 +38,7 @@ class Settings(BaseSettings):
     llm_model: str = Field(default="gemma3:27b")
 
     # Application Settings
-    debug: bool = Field(default=False) # Режим дебага для бд - позволяет смотреть sql запросы
+    debug: bool = Field(default=False)  # Режим дебага для бд - позволяет смотреть sql запросы
     log_level: str = Field(default="INFO")
     monitor_interval: int = Field(default=300, alias="MONITOR_INTERVAL")
     llm_context_size: int = Field(default=4096)
@@ -47,7 +49,8 @@ class Settings(BaseSettings):
     context_window_minutes: int = 60  # Keep context for last hour
     enable_conversation_memory: bool = True
 
-    #Celery
+    # Celery
+    task_monitor_interval: float = Field(default=3.0, alias="TASK_MONITOR_INTERVAL")
     celery_broker_url: Optional[str] = Field(default=None, alias="CELERY_BROKER_URL")
     celery_result_backend: Optional[str] = Field(default=None, alias="CELERY_RESULT_BACKEND")
 

@@ -1,7 +1,7 @@
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command, StateFilter, ChatMemberUpdatedFilter, JOIN_TRANSITION
-from redis_db.session import redis_client
+from src.redis_db.session import redis_client
 from src.config import settings
 from aiogram.fsm.storage.redis import RedisStorage
 from src.interfaces.telegram import handlers

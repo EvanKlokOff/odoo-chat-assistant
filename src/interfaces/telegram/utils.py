@@ -1,14 +1,13 @@
+import uuid
 from datetime import datetime, timedelta
 import re
-from html import escape
 from functools import wraps
 from aiogram import types
-from aiogram.fsm.context import FSMContext
+
+from src.database import crud
 from src.interfaces.telegram import keyboards
-from src.interfaces.telegram import states
 import logging
-from src.analyzers.graph import create_analysis_graph
-from src.analyzers.state import AgentState
+from src.tasks.analysis_tasks import run_review_analysis, run_compliance_analysis
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +67,7 @@ async def parse_date_from_callback(callback_data: str, command_type: str) -> tup
         return get_date_hours(24)
 
 
-    elif callback_data == f"{command_type}_custom": 
+    elif callback_data == f"{command_type}_custom":
         return None, None, None
 
     elif callback_data == f"{command_type}_date_cancel":
@@ -77,90 +76,179 @@ async def parse_date_from_callback(callback_data: str, command_type: str) -> tup
     return None, None, "Неизвестный выбор"
 
 
-async def run_review_analysis(message: types.Message, chat_id: str, date_start: str, date_end: str):
-    """Run review analysis"""
-    try:
-        # Prepare state for graph
-        state: AgentState = {
-            "query_type": "review",
-            "chat_id": chat_id,
-            "messages": [],
-            "date_start": date_start,
-            "date_end": date_end,
-            "instruction": None,
-            "chat_messages": [],
-            "analysis_result": None,
-            "deviations": None,
-            "current_step": "start",
-            "error": None
-        }
+# async def run_review_analysis(message: types.Message, chat_id: str, date_start: str, date_end: str):
+#     """Run review analysis"""
+#     try:
+#         # Prepare state for graph
+#         state: AgentState = {
+#             "query_type": "review",
+#             "chat_id": chat_id,
+#             "messages": [],
+#             "date_start": date_start,
+#             "date_end": date_end,
+#             "instruction": None,
+#             "chat_messages": [],
+#             "analysis_result": None,
+#             "deviations": None,
+#             "current_step": "start",
+#             "error": None
+#         }
+#
+#         # Run the graph
+#         graph = create_analysis_graph()
+#         final_state = await graph.ainvoke(state)
+#
+#         # Send result
+#         result = final_state.get("analysis_result", "Не удалось выполнить анализ.")
+#
+#         await _send_long_message(message, result, "📊 Результат анализа", "Markdown")
+#         await message.answer("🏠 Главное меню", reply_markup=keyboards.main_menu_keyboard)
+#
+#     except Exception as e:
+#         logger.error(f"Review analysis failed: {e}", exc_info=True)
+#         await message.answer(
+#             f"❌ Ошибка при анализе: {str(e)}\n\n"
+#             "Пожалуйста, попробуйте позже.",
+#             reply_markup=keyboards.main_menu_keyboard
+#         )
 
-        # Run the graph
-        graph = create_analysis_graph()
-        final_state = await graph.ainvoke(state)
 
-        # Send result
-        result = final_state.get("analysis_result", "Не удалось выполнить анализ.")
+async def run_review_analysis_async(
+        message: types.Message,
+        chat_id: str,
+        date_start: str,
+        date_end: str
+):
+    """Асинхронный запуск анализа ревью через Celery"""
+    logger.info(f"🔍 Creating task for user_id: {message.from_user.id}, username: {message.from_user.username}")
+    task_id = str(uuid.uuid4())
 
-        await _send_long_message(message, result, "📊 Результат анализа", "Markdown")
-        await message.answer("🏠 Главное меню", reply_markup=keyboards.main_menu_keyboard)
+    # Создаем запись в БД
+    await crud.create_analysis_task(
+        user_id=message.from_user.id,
+        chat_id=chat_id,
+        task_type="review",
+        task_id=task_id,
+        date_start=date_start,
+        date_end=date_end
+    )
 
-    except Exception as e:
-        logger.error(f"Review analysis failed: {e}", exc_info=True)
-        await message.answer(
-            f"❌ Ошибка при анализе: {str(e)}\n\n"
-            "Пожалуйста, попробуйте позже.",
-            reply_markup=keyboards.main_menu_keyboard
-        )
+    # Отправляем задачу в Celery
+    run_review_analysis.delay(
+        user_id=message.from_user.id,
+        chat_id=chat_id,
+        date_start=date_start,
+        date_end=date_end,
+        task_id=task_id
+    )
 
+    # Сообщаем пользователю
+    await message.answer(
+        "🔄 *Анализ запущен в фоновом режиме*\n\n"
+        f"ID задачи: `{task_id[:8]}...`\n\n"
+        "Я уведомлю вас, когда анализ будет готов.\n"
+        "Обычно это занимает до 30 секунд.\n\n",
+        parse_mode="Markdown",
+        reply_markup=keyboards.main_menu_keyboard
+    )
 
-async def run_compliance_analysis(
+async def run_compliance_analysis_async(
         message: types.Message,
         chat_id: str,
         instruction: str,
         date_start: str | None,
         date_end: str | None
 ):
-    """Run compliance analysis"""
-    try:
-        # Prepare state for graph
-        state: AgentState = {
-            "query_type": "compliance",
-            "chat_id": chat_id,
-            "messages": [],
-            "date_start": date_start,
-            "date_end": date_end,
-            "instruction": instruction,
-            "chat_messages": [],
-            "analysis_result": None,
-            "deviations": None,
-            "current_step": "start",
-            "error": None
-        }
+    """Асинхронный запуск проверки соответствия через Celery"""
+    logger.info(f"🔍 Creating task for user_id: {message.from_user.id}, username: {message.from_user.username}")
 
-        # Run the graph
-        graph = create_analysis_graph()
-        final_state = await graph.ainvoke(state)
+    logger.info(f"🔍 DEBUG: message.from_user.id = {message.from_user.id}")
+    logger.info(f"🔍 DEBUG: message.from_user.username = {message.from_user.username}")
+    logger.info(f"🔍 DEBUG: message.chat.id = {message.chat.id}")
+    logger.info(f"🔍 DEBUG: message.chat.type = {message.chat.type}")
 
-        # Send result
-        result = final_state.get("analysis_result", "Не удалось выполнить анализ.")
+    task_id = str(uuid.uuid4())
 
-        header = "✅ *Результат проверки соответствия инструкции*"
-        if date_start and date_end:
-            header += f"\n📅 *Период:* {datetime.fromisoformat(date_start).strftime('%d.%m.%Y %H:%M:%S')} - {datetime.fromisoformat(date_end).strftime('%d.%m.%Y %H:%M:%S')}"
-        else:
-            header += "\n📅 *Период:* вся доступная переписка"
+    # Создаем запись в БД
+    await crud.create_analysis_task(
+        user_id=message.from_user.id,
+        chat_id=chat_id,
+        task_type="compliance",
+        task_id=task_id,
+        instruction=instruction,
+        date_start=date_start,
+        date_end=date_end
+    )
 
-        await _send_long_message(message, result, header, "Markdown")
-        await message.answer("🏠 Главное меню", reply_markup=keyboards.main_menu_keyboard)
+    # Отправляем задачу в Celery
+    run_compliance_analysis.delay(
+        user_id=message.from_user.id,
+        chat_id=chat_id,
+        instruction=instruction,
+        date_start=date_start,
+        date_end=date_end,
+        task_id=task_id
+    )
 
-    except Exception as e:
-        logger.error(f"Compliance analysis failed: {e}", exc_info=True)
-        await message.answer(
-            f"❌ Ошибка при анализе: {str(e)}\n\n"
-            "Пожалуйста, попробуйте позже.",
-            reply_markup=keyboards.main_menu_keyboard
-        )
+    # Сообщаем пользователю
+    instruction_preview = instruction[:100] + "..." if len(instruction) > 100 else instruction
+    await message.answer(
+        f"🔄 *Проверка соответствия запущена*\n\n"
+        f"📝 Инструкция: {instruction_preview}\n\n"
+        f"ID задачи: `{task_id[:8]}...`\n\n"
+        "Я уведомлю вас, когда проверка будет завершена.\n"
+        "Обычно это занимает до 30 секунд.",
+        parse_mode="Markdown",
+        reply_markup=keyboards.main_menu_keyboard
+    )
+
+# async def run_compliance_analysis(
+#         message: types.Message,
+#         chat_id: str,
+#         instruction: str,
+#         date_start: str | None,
+#         date_end: str | None
+# ):
+#     """Run compliance analysis"""
+#     try:
+#         # Prepare state for graph
+#         state: AgentState = {
+#             "query_type": "compliance",
+#             "chat_id": chat_id,
+#             "messages": [],
+#             "date_start": date_start,
+#             "date_end": date_end,
+#             "instruction": instruction,
+#             "chat_messages": [],
+#             "analysis_result": None,
+#             "deviations": None,
+#             "current_step": "start",
+#             "error": None
+#         }
+#
+#         # Run the graph
+#         graph = create_analysis_graph()
+#         final_state = await graph.ainvoke(state)
+#
+#         # Send result
+#         result = final_state.get("analysis_result", "Не удалось выполнить анализ.")
+#
+#         header = "✅ *Результат проверки соответствия инструкции*"
+#         if date_start and date_end:
+#             header += f"\n📅 *Период:* {datetime.fromisoformat(date_start).strftime('%d.%m.%Y %H:%M:%S')} - {datetime.fromisoformat(date_end).strftime('%d.%m.%Y %H:%M:%S')}"
+#         else:
+#             header += "\n📅 *Период:* вся доступная переписка"
+#
+#         await _send_long_message(message, result, header, "Markdown")
+#         await message.answer("🏠 Главное меню", reply_markup=keyboards.main_menu_keyboard)
+#
+#     except Exception as e:
+#         logger.error(f"Compliance analysis failed: {e}", exc_info=True)
+#         await message.answer(
+#             f"❌ Ошибка при анализе: {str(e)}\n\n"
+#             "Пожалуйста, попробуйте позже.",
+#             reply_markup=keyboards.main_menu_keyboard
+#         )
 
 
 async def _send_long_message(message: types.Message, text: str, prefix: str = "",

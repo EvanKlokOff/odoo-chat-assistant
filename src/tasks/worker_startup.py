@@ -9,24 +9,29 @@ logger = logging.getLogger(__name__)
 def on_worker_start():
     """Callback при старте worker'а - инициализируем event loop"""
     logger.info("🚀 Worker starting, initializing event loop...")
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
+    #loop = asyncio.new_event_loop()
+    #asyncio.set_event_loop(loop)
     logger.info("✅ Event loop created and set")
 
 
 def on_worker_shutdown():
-    """Callback при остановке worker'а - чистим ресурсы"""
+    """Callback при остановке worker'а"""
     logger.info("🛑 Worker shutting down, cleaning up...")
-    loop = asyncio.get_event_loop()
 
-    # Закрываем соединения в пуле
+    # Закрываем соединения в БД
     async def cleanup():
         await engine.dispose()
 
-    if loop.is_running():
-        asyncio.create_task(cleanup())
-    else:
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            asyncio.create_task(cleanup())
+        else:
+            loop.run_until_complete(cleanup())
+    except RuntimeError:
+        # Нет event loop, создаем временный
+        loop = asyncio.new_event_loop()
         loop.run_until_complete(cleanup())
+        loop.close()
 
-    loop.close()
     logger.info("✅ Cleanup completed")
