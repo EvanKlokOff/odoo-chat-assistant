@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="55a1370a-10e4-4600-8281-b944b6da5411" name="Changes" comment="Добавление README.md">
+    <list default="true" id="55a1370a-10e4-4600-8281-b944b6da5411" name="Changes" comment="Добавление новой очереди worker-fast для обработки переодических задач, также настройка redbeat">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run-celery.sh" beforeDir="false" afterPath="$PROJECT_DIR$/run-celery.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/analyzers/nodes.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/analyzers/nodes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/session.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/session.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/telegram/handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/telegram/handlers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/telegram/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/telegram/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tasks/analysis_tasks.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tasks/analysis_tasks.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/tasks/celery_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tasks/celery_app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tasks/monitor_tasks.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tasks/monitor_tasks.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/tasks/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tasks/utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/tasks/worker_startup.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tasks/worker_startup.py" afterDir="false" />
     </list>
@@ -250,7 +254,8 @@
       <workItem from="1777372443632" duration="2239000" />
       <workItem from="1777602465547" duration="5931000" />
       <workItem from="1777623965907" duration="15033000" />
-      <workItem from="1777714421858" duration="6421000" />
+      <workItem from="1777714421858" duration="17720000" />
+      <workItem from="1777828234493" duration="319000" />
     </task>
     <task id="LOCAL-00001" summary="Init commit">
       <option name="closed" value="true" />
@@ -324,7 +329,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777715000360</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Добавление новой очереди worker-fast для обработки переодических задач, также настройка redbeat">
+      <option name="closed" value="true" />
+      <created>1777743366660</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1777743366660</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -349,7 +362,8 @@
     <MESSAGE value="Добавление индексов" />
     <MESSAGE value="Стабильная работа celery для генерации эмбедингов" />
     <MESSAGE value="Добавление README.md" />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавление README.md" />
+    <MESSAGE value="Добавление новой очереди worker-fast для обработки переодических задач, также настройка redbeat" />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавление новой очереди worker-fast для обработки переодических задач, также настройка redbeat" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -403,7 +417,7 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/odoo_chat_assistant$pytest_for_tests_test_message_handling_test_handle_new_message_success.coverage" NAME="pytest for tests.test_message_handling.test_handle_new_message_success Coverage Results" MODIFIED="1777117212358" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/odoo_chat_assistant$main.coverage" NAME="main Coverage Results" MODIFIED="1777742330989" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/odoo_chat_assistant$main.coverage" NAME="main Coverage Results" MODIFIED="1777828308745" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/odoo_chat_assistant$.coverage" NAME=" Coverage Results" MODIFIED="1776018033029" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

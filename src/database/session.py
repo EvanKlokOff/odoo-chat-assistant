@@ -1,7 +1,7 @@
 from typing import Any, AsyncGenerator
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from sqlalchemy import text
+from sqlalchemy import text, NullPool
 from src.config import settings
 from src.database.models import Base
 from contextlib import asynccontextmanager
@@ -13,10 +13,12 @@ async_db_url = settings.database_url.replace("postgresql://", "postgresql+asyncp
 engine = create_async_engine(
     async_db_url,
     echo=settings.debug,  # Лучше использовать отдельную настройку
-    pool_size=20,  # Размер пула
+    # pool=NullPool,
+    pool_size=5,  # Размер пула
     max_overflow=10,  # Максимум дополнительных соединений
-    pool_pre_ping=True,  # Проверять соединения перед использованием
-    pool_recycle=3600,  # Пересоздавать соединения каждый час
+    pool_pre_ping=False,  # Проверять соединения перед использованием
+    pool_recycle=300,  # Пересоздавать соединения каждый час
+    pool_use_lifo=True,
 )
 
 AsyncSessionLocal = async_sessionmaker(
@@ -26,9 +28,50 @@ AsyncSessionLocal = async_sessionmaker(
 )
 
 
+def get_engine():
+    """
+    Получить engine для текущего контекста.
+    В worker процессах использует process-local engine из worker_startup.
+    В основном процессе создает отдельный engine.
+    """
+    # Пытаемся получить worker-specific engine
+    try:
+        from src.tasks.worker_startup import get_worker_engine
+        return get_worker_engine()
+    except (ImportError, AttributeError):
+        # Вне worker контекста (например, в FastAPI) создаем свой engine
+        from sqlalchemy.ext.asyncio import create_async_engine
+
+        async_db_url = settings.database_url.replace("postgresql://", "postgresql+asyncpg://")
+
+        return create_async_engine(
+            async_db_url,
+            echo=settings.debug,
+            pool_size=10,  # Больше соединений для API
+            max_overflow=20,
+            pool_pre_ping=True,
+            pool_recycle=3600,
+            pool_use_lifo=True,
+            pool_timeout=30,
+        )
+
+
+def get_session_local():
+    """Получить sessionmaker для текущего контекста"""
+    from sqlalchemy.ext.asyncio import async_sessionmaker
+    from sqlalchemy.ext.asyncio import AsyncSession
+
+    return async_sessionmaker(
+        get_engine(),
+        expire_on_commit=False,
+        class_=AsyncSession
+    )
+
+
 async def get_db() -> AsyncGenerator[AsyncSession, Any]:
     """Dependency для FastAPI endpoints"""
-    async with AsyncSessionLocal() as session:
+    #async with AsyncSessionLocal() as session:
+    async with get_session_local()() as session:
         try:
             yield session
             await session.commit()
@@ -42,7 +85,8 @@ async def get_db() -> AsyncGenerator[AsyncSession, Any]:
 @asynccontextmanager
 async def get_db_context() -> AsyncGenerator[AsyncSession, Any]:
     """Context manager для использования вне FastAPI"""
-    async with AsyncSessionLocal() as session:
+    #async with AsyncSessionLocal() as session:
+    async with get_session_local()() as session:
         try:
             yield session
             await session.commit()
@@ -55,6 +99,7 @@ async def get_db_context() -> AsyncGenerator[AsyncSession, Any]:
 
 async def init_db():
     """Создание всех таблиц"""
+    engine = get_engine()
     async with engine.begin() as conn:
         # Включить pgvector extension если нужно
         await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
@@ -63,4 +108,5 @@ async def init_db():
 
 async def close_db():
     """Закрытие соединений"""
+    engine = get_engine()
     await engine.dispose()

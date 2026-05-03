@@ -33,11 +33,11 @@ fi
 
 # Оптимальные настройки для Mac с 8-10 ядрами
 # Для задач анализа (LLM) - умеренная конкурентность, т.к. задачи тяжелые
-ANALYSIS_CONCURRENCY=${ANALYSIS_CONCURRENCY:-2}
+ANALYSIS_CONCURRENCY=${ANALYSIS_CONCURRENCY:-1}
 # Для эмбеддингов - можно больше, задачи легче
 EMBEDDINGS_CONCURRENCY=${EMBEDDINGS_CONCURRENCY:-4}
 # Для быстрых I/O задач - gevent с высокой конкурентностью
-FAST_CONCURRENCY=${FAST_CONCURRENCY:-50}
+FAST_CONCURRENCY=${FAST_CONCURRENCY:-10}
 
 # Функция для запуска worker (все очереди)
 start_worker() {
@@ -92,7 +92,7 @@ start_worker_embeddings() {
         --pool=prefork \
         --concurrency="$EMBEDDINGS_CONCURRENCY" \
         --queues=embeddings \
-        --prefetch-multiplier=1 \
+        --prefetch-multiplier=4  \
         --max-tasks-per-child=50 \
         --without-gossip \
         --without-mingle \

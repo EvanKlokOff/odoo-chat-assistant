@@ -1,7 +1,7 @@
 # src/tasks/celery_app.py
 from celery import Celery
 from celery.schedules import crontab
-from celery.signals import worker_ready, worker_shutdown
+from celery.signals import worker_process_init, worker_process_shutdown
 from src.config import settings
 import logging
 
@@ -80,7 +80,7 @@ celery_app.conf.beat_schedule = {
     },
     "monitor-active-tasks": {
         "task": "monitor_analysis_tasks",
-        "schedule": 3.0,  # Временная константа для теста
+        "schedule": settings.task_monitor_interval,  # Временная константа для теста
         "options": {"queue": "default"}
     },
 }
@@ -90,19 +90,22 @@ celery_app.conf.redbeat_redis_url = settings.redis_url
 celery_app.conf.redbeat_key_prefix = 'redbeat:'
 celery_app.conf.redbeat_lock_timeout = settings.REDBEAT_LOCK_TIMEOUT  # 60 секунд вместо 25 минут
 celery_app.conf.redbeat_lock_renewal = settings.REDBEAT_LOCK_RENEWAL  # Обновление каждые 30 секунд
+celery_app.conf.redbeat_lock_retry_limit = 10
+celery_app.conf.redbeat_lock_retry_delay = 5
+celery_app.conf.redbeat_lock_restore_on_failure = True
 
 # Принудительно устанавливаем scheduler
 celery_app.conf.beat_scheduler = 'redbeat.RedBeatScheduler'
 
 
-@worker_ready.connect
+@worker_process_init.connect
 def on_worker_ready(**kwargs):
     """Инициализация при старте worker'а"""
     from src.tasks.worker_startup import on_worker_start
     on_worker_start()
 
 
-@worker_shutdown.connect
+@worker_process_shutdown.connect
 def on_worker_shutdown(**kwargs):
     """Очистка при остановке worker'а"""
     from src.tasks.worker_startup import on_worker_shutdown

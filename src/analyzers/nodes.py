@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 llm_provider: BaseLLMProvider | None = None
 embedding_provider: BaseEmbeddingProvider | None = None
 
+
 def get_llm_provider() -> BaseLLMProvider | None:
     """Ленивая инициализация LLM провайдера"""
     global llm_provider
@@ -27,6 +28,7 @@ def get_llm_provider() -> BaseLLMProvider | None:
         logger.info(f"LLM provider initialized: {settings.llm_provider}")
     return llm_provider
 
+
 def get_embedding_provider() -> BaseEmbeddingProvider | None:
     """Ленивая инициализация эмбеддинг провайдера"""
     global embedding_provider
@@ -39,12 +41,25 @@ def get_embedding_provider() -> BaseEmbeddingProvider | None:
         logger.info(f"Embedding provider initialized: {settings.embedding_provider}")
     return embedding_provider
 
+
 async def analyze_query_type(state: AgentState) -> AgentState:
     """Analyze the user's query to determine if it's a review or compliance check"""
     logger.info("Analyzing query type...")
 
     # This would be determined by the handler, so just return state
     return state
+
+
+formating_rules = """
+## Правила форматирования:
+1. Используй Markdown разметку для структурирования ответа
+2. Заголовки: ### для основных разделов
+3. Жирный шрифт: **текст** для важной информации
+4. Маркированные списки: используй - или * 
+5. Нумерованные списки: используй 1., 2., 3.
+6. Для сумм и важных цифр используй **жирный** или `код`
+7. Не используй вложенные Markdown конструкции, которые могут сломаться
+"""
 
 
 async def retrieve_chat_messages(state: AgentState) -> AgentState:
@@ -88,6 +103,7 @@ async def retrieve_chat_messages(state: AgentState) -> AgentState:
 
     return state
 
+
 async def generate_review(state: AgentState) -> AgentState:
     """Generate a summary review of the chat messages"""
     logger.info("Generating chat review...")
@@ -107,6 +123,18 @@ async def generate_review(state: AgentState) -> AgentState:
 1. Имена участников: используй ТОЛЬКО те имена, которые указаны в сообщениях (username, full name, first name)
 2. Не додумывай и не путай участников - если имя не указано, используй "Участник 1", "Участник 2"
 3. Все суммы, даты, условия фиксируй ТОЧНО как в тексте
+
+{formating_rules}
+
+## Правила форматирования:
+1. Используй Markdown разметку для структурирования ответа
+2. Заголовки: ### для основных разделов
+3. Жирный шрифт: **текст** для важной информации
+4. Маркированные списки: используй - или * 
+5. Нумерованные списки: используй 1., 2., 3.
+6. Для сумм и важных цифр используй **жирный** или `код`
+7. Не используй вложенные Markdown конструкции, которые могут сломаться
+
 
 Анализируемые сообщения:
 {messages_text[:8000]}
@@ -161,6 +189,8 @@ async def check_compliance(state: AgentState) -> AgentState:
     instruction = state.get("instruction", "")
 
     prompt = f"""Ты - эксперт по анализу соответствия чатов заданным инструкциям.
+
+{formating_rules}
 
 Инструкция (требования к чату):
 {instruction}

@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
     time_limit=300,
     soft_time_limit=280
 )
-@async_celery_task_bind
+@async_celery_task_bind()
 async def run_compliance_analysis(
         self,
         user_id: int,
