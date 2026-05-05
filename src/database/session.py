@@ -5,6 +5,9 @@ from sqlalchemy import text, NullPool
 from src.config import settings
 from src.database.models import Base
 from contextlib import asynccontextmanager
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Convert postgresql:// to postgresql+asyncpg://
 async_db_url = settings.database_url.replace("postgresql://", "postgresql+asyncpg://")
@@ -70,7 +73,7 @@ def get_session_local():
 
 async def get_db() -> AsyncGenerator[AsyncSession, Any]:
     """Dependency для FastAPI endpoints"""
-    #async with AsyncSessionLocal() as session:
+    # async with AsyncSessionLocal() as session:
     async with get_session_local()() as session:
         try:
             yield session
@@ -85,7 +88,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, Any]:
 @asynccontextmanager
 async def get_db_context() -> AsyncGenerator[AsyncSession, Any]:
     """Context manager для использования вне FastAPI"""
-    #async with AsyncSessionLocal() as session:
+    # async with AsyncSessionLocal() as session:
     async with get_session_local()() as session:
         try:
             yield session
@@ -110,3 +113,21 @@ async def close_db():
     """Закрытие соединений"""
     engine = get_engine()
     await engine.dispose()
+
+
+async def check_database_connection() -> bool:
+    """
+    Проверяет соединение с базой данных.
+
+    Returns:
+        True если соединение успешно, False в противном случае
+    """
+    try:
+        engine = get_engine()
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+            logger.debug("Database connection check successful")
+            return True
+    except Exception as e:
+        logger.error(f"Database connection check failed: {e}")
+        return False
