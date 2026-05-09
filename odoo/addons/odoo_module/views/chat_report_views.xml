@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Dashboard View -->
+    <record id="view_chat_analysis_dashboard" model="ir.ui.view">
+        <field name="name">chat.analysis.dashboard</field>
+        <field name="model">chat.analysis.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Dashboard">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_refresh_dashboard" type="object" class="oe_stat_button" icon="fa-refresh">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Refresh</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>Chat Analysis Dashboard</h1>
+                    </div>
+                    <div class="o_statistic">
+                        <div class="row">
+                            <div class="col-lg-3 col-md-6">
+                                <div class="card-box bg-primary text-white">
+                                    <div class="media">
+                                        <div class="media-body">
+                                            <h3 class="mb-1"><field name="chat_count"/></h3>
+                                            <p class="mb-0">Total Chats</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fa fa-comments fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <div class="card-box bg-info text-white">
+                                    <div class="media">
+                                        <div class="media-body">
+                                            <h3 class="mb-1"><field name="user_count"/></h3>
+                                            <p class="mb-0">Total Users</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fa fa-users fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <div class="card-box bg-success text-white">
+                                    <div class="media">
+                                        <div class="media-body">
+                                            <h3 class="mb-1"><field name="message_count"/></h3>
+                                            <p class="mb-0">Total Messages</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fa fa-envelope fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <div class="card-box bg-warning text-white">
+                                    <div class="media">
+                                        <div class="media-body">
+                                            <h3 class="mb-1"><field name="report_count"/></h3>
+                                            <p class="mb-0">Analysis Reports</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fa fa-bar-chart fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="card-box">
+                                    <h4 class="header-title">Compliance Overview</h4>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="text-center">
+                                                <p class="text-muted mb-1">Compliant</p>
+                                                <h3 class="text-success"><field name="compliant_count"/></h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-center">
+                                                <p class="text-muted mb-1">Non-Compliant</p>
+                                                <h3 class="text-danger"><field name="non_compliant_count"/></h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Statistics View -->
+    <record id="view_chat_analysis_statistics_form" model="ir.ui.view">
+        <field name="name">chat.analysis.statistics.form</field>
+        <field name="model">chat.analysis.statistics</field>
+        <field name="arch" type="xml">
+            <form string="Chat Statistics">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="chat_id" options="{'no_create': True}"/>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+                    <group string="Statistics">
+                        <field name="message_stats" nolabel="1" widget="html"/>
+                        <field name="participant_stats" nolabel="1" widget="html"/>
+                    </group>
+                    <footer>
+                        <button name="action_refresh" type="object" string="Refresh" class="btn-primary"/>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action for Dashboard -->
+    <record id="action_chat_analysis_dashboard" model="ir.actions.act_window">
+        <field name="name">Dashboard</field>
+        <field name="res_model">chat.analysis.dashboard</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="binding_model_id" ref="base.model_res_users"/>
+        <field name="binding_view_types">form</field>
+    </record>
+
+    <!-- Add Dashboard to Menu -->
+    <menuitem id="menu_chat_analysis_dashboard_item"
+              name="Dashboard"
+              parent="menu_chat_analysis_root"
+              sequence="5"
+              action="action_chat_analysis_dashboard"/>
+
+    <!-- Report Statistics View (для просмотра в chat form) -->
+    <record id="view_chat_analysis_report_statistics" model="ir.ui.view">
+        <field name="name">chat.analysis.report.statistics</field>
+        <field name="model">chat.analysis.report</field>
+        <field name="inherit_id" ref="view_chat_analysis_report_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <div class="oe_right oe_button_box" name="stat_button_box">
+                    <button name="action_view_chart" type="object" class="oe_stat_button" icon="fa-line-chart">
+                        <div class="o_stat_info">
+                            <span class="o_stat_text">View Analytics</span>
+                        </div>
+                    </button>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Chart View для отчётов -->
+    <record id="view_chat_analysis_report_graph" model="ir.ui.view">
+        <field name="name">chat.analysis.report.graph</field>
+        <field name="model">chat.analysis.report</field>
+        <field name="arch" type="xml">
+            <graph string="Reports Analytics">
+                <field name="create_date" interval="day"/>
+                <field name="analysis_type"/>
+                <field name="compliant"/>
+                <field name="confidence" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Pivot View -->
+    <record id="view_chat_analysis_report_pivot" model="ir.ui.view">
+        <field name="name">chat.analysis.report.pivot</field>
+        <field name="model">chat.analysis.report</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="analysis_type" type="row"/>
+                <field name="compliant" type="col"/>
+                <field name="state" type="row"/>
+                <field name="confidence" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Calendar View -->
+    <record id="view_chat_analysis_report_calendar" model="ir.ui.view">
+        <field name="name">chat.analysis.report.calendar</field>
+        <field name="model">chat.analysis.report</field>
+        <field name="arch" type="xml">
+            <calendar string="Reports Calendar" date_start="target_datetime" color="analysis_type">
+                <field name="chat_id"/>
+                <field name="analysis_type"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Activity View -->
+    <record id="view_chat_analysis_report_activity" model="ir.ui.view">
+        <field name="name">chat.analysis.report.activity</field>
+        <field name="model">chat.analysis.report</field>
+        <field name="arch" type="xml">
+            <activity string="Recent Activity">
+                <field name="display_name"/>
+                <field name="chat_id"/>
+                <field name="analysis_type"/>
+                <field name="state"/>
+                <field name="create_date"/>
+            </activity>
+        </field>
+    </record>
+
+    <!-- Search View для Reports -->
+    <record id="view_chat_analysis_report_search" model="ir.ui.view">
+        <field name="name">chat.analysis.report.search</field>
+        <field name="model">chat.analysis.report</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="display_name"/>
+                <field name="chat_id"/>
+                <field name="analysis_type"/>
+                <field name="state"/>
+                <field name="compliant"/>
+                <filter name="compliant" string="Compliant" domain="[('compliant', '=', True)]"/>
+                <filter name="non_compliant" string="Non-Compliant" domain="[('compliant', '=', False)]"/>
+                <filter name="review" string="Reviews" domain="[('analysis_type', '=', 'review')]"/>
+                <filter name="compliance" string="Compliance Checks" domain="[('analysis_type', '=', 'compliance')]"/>
+                <separator/>
+                <filter name="today" string="Today" date="create_date" operator="="/>
+                <filter name="week" string="This Week" date="create_date" operator="this_week"/>
+                <filter name="month" string="This Month" date="create_date" operator="this_month"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_chat" string="Chat" context="{'group_by': 'chat_id'}"/>
+                    <filter name="group_by_type" string="Analysis Type" context="{'group_by': 'analysis_type'}"/>
+                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_compliant" string="Compliant" context="{'group_by': 'compliant'}"/>
+                    <filter name="group_by_date" string="Create Date" context="{'group_by': 'create_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Обновление action для reports с новыми view -->
+    <record id="action_chat_analysis_reports" model="ir.actions.act_window">
+        <field name="name">Analysis Reports</field>
+        <field name="res_model">chat.analysis.report</field>
+        <field name="view_mode">tree,form,graph,pivot,calendar,activity</field>
+        <field name="search_view_id" ref="view_chat_analysis_report_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No analysis reports found. Click "Analyze Chat" to create your first report.
+            </p>
+        </field>
+    </record>
+
+    <!-- Ticket Views -->
+    <record id="view_chat_analysis_ticket_tree" model="ir.ui.view">
+        <field name="name">chat.analysis.ticket.tree</field>
+        <field name="model">chat.analysis.ticket</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="chat_id"/>
+                <field name="priority" widget="badge" decoration-danger="priority == 'high'" decoration-warning="priority == 'urgent'"/>
+                <field name="state" widget="badge"/>
+                <field name="assigned_to"/>
+                <field name="create_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_chat_analysis_ticket_form" model="ir.ui.view">
+        <field name="name">chat.analysis.ticket.form</field>
+        <field name="model">chat.analysis.ticket</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_mark_in_progress" type="object" string="Mark In Progress" class="btn-primary" states="new"/>
+                    <button name="action_mark_resolved" type="object" string="Resolve" class="btn-success" states="new,in_progress"/>
+                    <button name="action_mark_closed" type="object" string="Close" class="btn-secondary" states="resolved"/>
+                    <field name="state" widget="badge"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="chat_id"/>
+                            <field name="report_id"/>
+                            <field name="priority"/>
+                        </group>
+                        <group>
+                            <field name="assigned_to"/>
+                            <field name="create_date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description">
+                            <field name="description" nolabel="1"/>
+                        </page>
+                        <page string="Violations">
+                            <field name="violations" nolabel="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_chat_analysis_ticket_search" model="ir.ui.view">
+        <field name="name">chat.analysis.ticket.search</field>
+        <field name="model">chat.analysis.ticket</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="chat_id"/>
+                <filter name="open" string="Open" domain="[('state', 'in', ['new', 'in_progress'])]"/>
+                <filter name="assigned_to_me" string="Assigned to Me" domain="[('assigned_to', '=', uid)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_priority" string="Priority" context="{'group_by': 'priority'}"/>
+                    <filter name="group_by_chat" string="Chat" context="{'group_by': 'chat_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_chat_analysis_tickets" model="ir.actions.act_window">
+        <field name="name">Tickets</field>
+        <field name="res_model">chat.analysis.ticket</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_chat_analysis_ticket_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No tickets found. Tickets are automatically created from compliance violations.
+            </p>
+        </field>
+    </record>
+
+    <!-- Update menu sequence -->
+    <menuitem id="menu_chat_analysis_reports"
+              name="Analysis Reports"
+              parent="menu_chat_analysis_root"
+              sequence="10"
+              action="action_chat_analysis_reports"/>
+
+    <menuitem id="menu_chat_analysis_tickets"
+              name="Tickets"
+              parent="menu_chat_analysis_root"
+              sequence="20"
+              action="action_chat_analysis_tickets"/>
+</odoo>

@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  # БД для чат-анализатора
+  chat_analyzer_postgres:
+    image: pgvector/pgvector:pg16
+    container_name: chat_analyzer_db
+    environment:
+      - POSTGRES_DB=chat_analyzer
+      - POSTGRES_USER=analyzer
+      - POSTGRES_PASSWORD=secure_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - chat_analyzer_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U analyzer -d chat_analyzer" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - internal_network
+
+  # Redis для чат-анализатора
+  chat_analyzer_redis:
+    image: redis:7-alpine
+    container_name: chat-analyzer-redis_db
+    ports:
+      - "6379:6379"
+    volumes:
+      - chat_analyzer_redis_data:/data
+      - ./redis_db.conf:/usr/local/etc/redis_db/redis_db.conf:ro
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - internal_network
+
+  # БД для Odoo
+  odoo_postgres:
+    image: postgres:16
+    container_name: odoo_postgres
+    environment:
+      - POSTGRES_DB=odoo_db  # Жестко задаём для простоты
+      - POSTGRES_USER=odoo    # Жестко задаём пользователя odoo
+      - POSTGRES_PASSWORD=odoo_secure_password
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - odoo_postgres_data:/var/lib/postgresql/data
+      - ./postgres-init-odoo:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo -d odoo_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Odoo сервер
+  odoo:
+    image: odoo:18
+    container_name: odoo_app
+    depends_on:
+      odoo_postgres:
+        condition: service_healthy
+    ports:
+      - "${ODOO_PORT:-8069}:8069"
+      - "${ODOO_LONGPOLL_PORT:-8072}:8072"
+    environment:
+      - DB_HOST=odoo_postgres  # ИСПРАВЛЕНО: правильное имя хоста
+      - DB_PORT=5432
+      - DB_USER=odoo
+      - DB_PASSWORD=odoo_secure_password
+    volumes:
+      - odoo_data:/var/lib/odoo
+      - ./odoo/addons:/mnt/extra-addons
+      - ./odoo/odoo.conf:/etc/odoo/odoo.conf
+    command: odoo -i base --without-demo=all
+    restart: unless-stopped
+    networks:
+      - internal_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  internal_network:
+    driver: bridge
+
+volumes:
+  chat_analyzer_postgres_data:
+    driver: local
+  chat_analyzer_redis_data:
+    driver: local
+  odoo_postgres_data:
+    driver: local
+  odoo_data:
+    driver: local

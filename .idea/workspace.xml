@@ -1,28 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="55a1370a-10e4-4600-8281-b944b6da5411" name="Changes" comment="Полностью рабочая версия бота, использующая селери для генерации анализов, эмбедингов, переодические задачи для готовности анализов">
-      <change afterPath="$PROJECT_DIR$/common_api/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/routers/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/routers/analysis.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/routers/chats.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/routers/messages.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/routers/sync.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/routers/users.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/schemas.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/tests/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/tests/conftest.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/tests/test_analysis.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/tests/test_chats.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/tests/test_messages.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/tests/test_sync.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/tests/test_users.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/tests/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/utils.py" afterDir="false" />
+    <list default="true" id="55a1370a-10e4-4600-8281-b944b6da5411" name="Changes" comment="Добавлена API Для интеграции">
+      <change afterPath="$PROJECT_DIR$/docker-compose.all.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/__manifest__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/controllers/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/controllers/chat_controller.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/data/chat_cron_data.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/chat_analysis.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/chat_report.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/chat_user.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/ir_model_access.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/res_config_settings.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/security/ir.model.access.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/static/description/icon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_analysis_views.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_menu_views.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_report_views.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_settings_views.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/wizards/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/wizards/chat_analysis_wizard.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/wizards/chat_analysis_wizard_view.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/postgres-init-odoo/init.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/database/session.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/session.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/crud.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/crud.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,60 +64,67 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python tests.Python tests for tests.test_analyzers.TestReviewGeneration.executor": "Run",
-    "Python tests.Python tests for tests.test_analyzers.TestReviewGeneration.test_generate_review_with_messages.executor": "Run",
-    "Python tests.Python tests for tests.test_analyzers.test_generate_review_empty_messages.executor": "Run",
-    "Python tests.Python tests for tests.test_analyzers.test_generate_review_with_messages.executor": "Debug",
-    "Python tests.Python tests for tests.test_embedings.test_embedding_consistency.executor": "Run",
-    "Python tests.Python tests for tests.test_embedings.test_embedding_similarity.executor": "Run",
-    "Python tests.Python tests for tests.test_embedings.test_semantic_search.executor": "Run",
-    "Python tests.Python tests for tests.test_integration.test_full_compliance_pipeline.executor": "Run",
-    "Python tests.Python tests for tests.test_integration.test_full_review_pipeline.executor": "Debug",
-    "Python tests.Python tests for tests.test_integration.test_real_embeddings_search.executor": "Debug",
-    "Python tests.Python tests for tests.test_integration.test_real_llm_review.executor": "Debug",
-    "Python tests.Python tests for tests.test_llm_providers.test_chat.executor": "Run",
-    "Python tests.Python tests for tests.test_llm_providers.test_gemma3_analysis.executor": "Debug",
-    "Python tests.Python tests for tests.test_llm_providers.test_gemma3_response.executor": "Run",
-    "Python tests.Python tests for tests.test_llm_providers.test_generate_response.executor": "Debug",
-    "Python tests.Python tests for tests.test_llm_providers.test_generate_with_system_prompt.executor": "Debug",
-    "Python tests.Python tests for tests.test_llm_providers.test_generate_with_template.executor": "Debug",
-    "Python tests.pytest for common_api.routers.messages.TestMessagesAPI.executor": "Run",
-    "Python tests.pytest for common_api.tests.test_analysis.TestAnalysisAPI.executor": "Run",
-    "Python tests.pytest for common_api.tests.test_chats.TestChatsAPI.executor": "Run",
-    "Python tests.pytest for common_api.tests.test_messages.TestMessagesAPI.executor": "Run",
-    "Python tests.pytest for common_api.tests.test_sync.TestSyncAPI.executor": "Run",
-    "Python tests.pytest for common_api.tests.test_sync.TestSyncAPI.test_get_changes_with_limit.executor": "Debug",
-    "Python tests.pytest for common_api.tests.test_users.TestUsersAPI.executor": "Run",
-    "Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_chats.executor": "Run",
-    "Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_detail_not_found.executor": "Run",
-    "Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_detail_success.executor": "Run",
-    "Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_messages.executor": "Run",
-    "Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_messages_pagination.executor": "Run",
-    "Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_users_success.executor": "Debug",
-    "Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_users_with_search.executor": "Run",
-    "Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_unauthorized_access.executor": "Run",
-    "Python tests.pytest for tests.test_message_handling.test_handle_new_message_success.executor": "Debug",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/user/PycharmProjects/odoo-chat-assistant",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "vcs.Git",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python tests.Python tests for tests.test_analyzers.TestReviewGeneration.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_analyzers.TestReviewGeneration.test_generate_review_with_messages.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_analyzers.test_generate_review_empty_messages.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_analyzers.test_generate_review_with_messages.executor&quot;: &quot;Debug&quot;,
+    &quot;Python tests.Python tests for tests.test_embedings.test_embedding_consistency.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_embedings.test_embedding_similarity.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_embedings.test_semantic_search.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_integration.test_full_compliance_pipeline.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_integration.test_full_review_pipeline.executor&quot;: &quot;Debug&quot;,
+    &quot;Python tests.Python tests for tests.test_integration.test_real_embeddings_search.executor&quot;: &quot;Debug&quot;,
+    &quot;Python tests.Python tests for tests.test_integration.test_real_llm_review.executor&quot;: &quot;Debug&quot;,
+    &quot;Python tests.Python tests for tests.test_llm_providers.test_chat.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_llm_providers.test_gemma3_analysis.executor&quot;: &quot;Debug&quot;,
+    &quot;Python tests.Python tests for tests.test_llm_providers.test_gemma3_response.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for tests.test_llm_providers.test_generate_response.executor&quot;: &quot;Debug&quot;,
+    &quot;Python tests.Python tests for tests.test_llm_providers.test_generate_with_system_prompt.executor&quot;: &quot;Debug&quot;,
+    &quot;Python tests.Python tests for tests.test_llm_providers.test_generate_with_template.executor&quot;: &quot;Debug&quot;,
+    &quot;Python tests.pytest for common_api.routers.messages.TestMessagesAPI.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest for common_api.tests.test_analysis.TestAnalysisAPI.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest for common_api.tests.test_chats.TestChatsAPI.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest for common_api.tests.test_messages.TestMessagesAPI.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest for common_api.tests.test_sync.TestSyncAPI.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest for common_api.tests.test_sync.TestSyncAPI.test_get_changes_with_limit.executor&quot;: &quot;Debug&quot;,
+    &quot;Python tests.pytest for common_api.tests.test_users.TestUsersAPI.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_chats.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_detail_not_found.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_detail_success.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_messages.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_messages_pagination.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_users_success.executor&quot;: &quot;Debug&quot;,
+    &quot;Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_users_with_search.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_unauthorized_access.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.pytest for tests.test_message_handling.test_handle_new_message_success.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;database.data.extractors.current.export.id&quot;: &quot;Comma-separated (CSV)_id&quot;,
+    &quot;database.data.extractors.current.id&quot;: &quot;Comma-separated (CSV)_id&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/user/PycharmProjects/odoo-chat-assistant/odoo_module/static/description&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;vcs.Git&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/odoo_module/static/description" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/odoo/addons" />
+      <recent name="$PROJECT_DIR$/odoo_module/wizards" />
       <recent name="$PROJECT_DIR$/src/cache" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.pytest for common_api.tests.test_chats.TestChatsAPI">
+  <component name="RunManager" selected="Python.main">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="odoo-chat-assistant" />
       <option name="ENV_FILES" value="" />
@@ -291,7 +302,10 @@
       <workItem from="1777714421858" duration="17720000" />
       <workItem from="1777828234493" duration="1772000" />
       <workItem from="1777913386602" duration="2520000" />
-      <workItem from="1777995721848" duration="7830000" />
+      <workItem from="1777995721848" duration="11578000" />
+      <workItem from="1778047345092" duration="1442000" />
+      <workItem from="1778130024032" duration="4540000" />
+      <workItem from="1778218820045" duration="601000" />
     </task>
     <task id="LOCAL-00001" summary="Init commit">
       <option name="closed" value="true" />
@@ -381,7 +395,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777828670776</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Добавлена API Для интеграции">
+      <option name="closed" value="true" />
+      <created>1778005737215</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1778005737215</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -408,7 +430,8 @@
     <MESSAGE value="Добавление README.md" />
     <MESSAGE value="Добавление новой очереди worker-fast для обработки переодических задач, также настройка redbeat" />
     <MESSAGE value="Полностью рабочая версия бота, использующая селери для генерации анализов, эмбедингов, переодические задачи для готовности анализов" />
-    <option name="LAST_COMMIT_MESSAGE" value="Полностью рабочая версия бота, использующая селери для генерации анализов, эмбедингов, переодические задачи для готовности анализов" />
+    <MESSAGE value="Добавлена API Для интеграции" />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавлена API Для интеграции" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -486,9 +509,9 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/odoo_chat_assistant$pytest_for_common_api_routers_messages_TestMessagesAPI.coverage" NAME="pytest for common_api.routers.messages.TestMessagesAPI Coverage Results" MODIFIED="1778004659995" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/odoo_chat_assistant$pytest_for_tests_test_message_handling_test_handle_new_message_success.coverage" NAME="pytest for tests.test_message_handling.test_handle_new_message_success Coverage Results" MODIFIED="1777117212358" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/odoo_chat_assistant$pytest_for_common_api_tests_test_sync_TestSyncAPI_test_get_changes_with_limit.coverage" NAME="pytest for common_api.tests.test_sync.TestSyncAPI.test_get_changes_with_limit Coverage Results" MODIFIED="1778004334281" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/odoo_chat_assistant$pytest_for_common_api_tests_test_users_TestUsersAPI.coverage" NAME="pytest for common_api.tests.test_users.TestUsersAPI Coverage Results" MODIFIED="1778005699105" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/odoo_chat_assistant$pytest_for_common_api_tests_test_sync_TestSyncAPI_test_get_changes_with_limit.coverage" NAME="pytest for common_api.tests.test_sync.TestSyncAPI.test_get_changes_with_limit Coverage Results" MODIFIED="1778004334281" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/odoo_chat_assistant$pytest_for_tests_test_message_handling_test_handle_new_message_success.coverage" NAME="pytest for tests.test_message_handling.test_handle_new_message_success Coverage Results" MODIFIED="1777117212358" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/odoo_chat_assistant$pytest_for_common_api_tests_test_users_TestUsersAPI_test_get_users_with_search.coverage" NAME="pytest for common_api.tests.test_users.TestUsersAPI.test_get_users_with_search Coverage Results" MODIFIED="1778001581634" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/odoo_chat_assistant$pytest_for_common_api_tests_test_users_TestUsersAPI_test_get_user_detail_not_found.coverage" NAME="pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_detail_not_found Coverage Results" MODIFIED="1778001587527" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/odoo_chat_assistant$.coverage" NAME=" Coverage Results" MODIFIED="1776018033029" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -496,7 +519,7 @@
     <SUITE FILE_PATH="coverage/odoo_chat_assistant$pytest_for_common_api_tests_test_users_TestUsersAPI_test_get_user_messages.coverage" NAME="pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_messages Coverage Results" MODIFIED="1778001590898" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/odoo_chat_assistant$pytest_for_common_api_tests_test_users_TestUsersAPI_test_get_users_success.coverage" NAME="pytest for common_api.tests.test_users.TestUsersAPI.test_get_users_success Coverage Results" MODIFIED="1778001610107" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/odoo_chat_assistant$pytest_for_common_api_tests_test_sync_TestSyncAPI.coverage" NAME="pytest for common_api.tests.test_sync.TestSyncAPI Coverage Results" MODIFIED="1778005704888" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/odoo_chat_assistant$main.coverage" NAME="main Coverage Results" MODIFIED="1777828308745" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/odoo_chat_assistant$main.coverage" NAME="main Coverage Results" MODIFIED="1778048407377" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/odoo_chat_assistant$pytest_for_common_api_tests_test_users_TestUsersAPI_test_unauthorized_access.coverage" NAME="pytest for common_api.tests.test_users.TestUsersAPI.test_unauthorized_access Coverage Results" MODIFIED="1778001596184" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/odoo_chat_assistant$pytest_for_common_api_tests_test_messages_TestMessagesAPI.coverage" NAME="pytest for common_api.tests.test_messages.TestMessagesAPI Coverage Results" MODIFIED="1778005709099" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/odoo_chat_assistant$pytest_for_common_api_tests_test_users_TestUsersAPI_test_get_user_messages_pagination.coverage" NAME="pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_messages_pagination Coverage Results" MODIFIED="1778001593656" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

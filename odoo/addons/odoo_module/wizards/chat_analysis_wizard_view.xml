@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_chat_analysis_wizard_form" model="ir.ui.view">
+        <field name="name">chat.analysis.wizard.form</field>
+        <field name="model">chat.analysis.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Chat Analysis</h1>
+                    </div>
+                    <group>
+                        <field name="chat_id" required="1"/>
+                        <field name="target_datetime" required="1"/>
+                        <field name="lookback_minutes"/>
+                        <field name="lookforward_minutes"/>
+                        <field name="instruction"
+                               placeholder="Enter instruction for compliance check..."
+                               attrs="{'invisible': [('parent.action_type', '=', 'review')]}"/>
+                    </group>
+                    <footer>
+                        <button name="action_review" type="object" string="Run Review" class="btn-primary"/>
+                        <button name="action_compliance" type="object" string="Check Compliance" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_chat_analysis_wizard" model="ir.actions.act_window">
+        <field name="name">Analyze Chat</field>
+        <field name="res_model">chat.analysis.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_chat_analysis_chat"/>
+        <field name="binding_view_types">form</field>
+    </record>
+
+    <record id="view_chat_sync_batch_wizard_form" model="ir.ui.view">
+        <field name="name">chat.sync.batch.wizard.form</field>
+        <field name="model">chat.sync.batch.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Batch Synchronization</h1>
+                    </div>
+                    <group>
+                        <field name="sync_type" widget="radio"/>
+                    </group>
+                    <footer>
+                        <button name="action_sync" type="object" string="Sync Now" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_chat_sync_batch_wizard" model="ir.actions.act_window">
+        <field name="name">Batch Sync</field>
+        <field name="res_model">chat.sync.batch.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

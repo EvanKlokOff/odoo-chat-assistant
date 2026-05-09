@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_chat_analysis_user,chat.analysis.user,chat_analysis.model_chat_analysis_user,base.group_user,1,1,1,1
+access_chat_analysis_chat,chat.analysis.chat,chat_analysis.model_chat_analysis_chat,base.group_user,1,1,1,1
+access_chat_analysis_report,chat.analysis.report,chat_analysis.model_chat_analysis_report,base.group_user,1,1,1,1
+access_chat_analysis_message,chat.analysis.message,chat_analysis.model_chat_analysis_message,base.group_user,1,1,1,1
+access_chat_analysis_ticket,chat.analysis.ticket,chat_analysis.model_chat_analysis_ticket,base.group_user,1,1,1,1
+access_chat_analysis_wizard,chat.analysis.wizard,chat_analysis.model_chat_analysis_wizard,base.group_user,1,1,1,1
+access_chat_sync_batch_wizard,chat.sync.batch.wizard,chat_analysis.model_chat_sync_batch_wizard,base.group_user,1,1,1,1

@@ -297,8 +297,6 @@ async def get_chat_messages_by_chat_id(
         return result.scalars().all()
 
 
-# Добавьте в crud.py после существующих импортов
-
 
 async def add_user_chat(user_id: int, chat_id: str, chat_title: str | None = None):
     """Add or update user-chat relationship"""

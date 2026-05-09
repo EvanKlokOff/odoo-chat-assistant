@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- User Tree View -->
+    <record id="view_chat_analysis_user_tree" model="ir.ui.view">
+        <field name="name">chat.analysis.user.tree</field>
+        <field name="model">chat.analysis.user</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="user_name"/>
+                <field name="telegram_id"/>
+                <field name="message_count" widget="integer"/>
+                <field name="last_active"/>
+                <field name="chat_ids" widget="many2many_tags"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- User Form View -->
+    <record id="view_chat_analysis_user_form" model="ir.ui.view">
+        <field name="name">chat.analysis.user.form</field>
+        <field name="model">chat.analysis.user</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box">
+                        <button name="action_view_messages" type="object" class="oe_stat_button" icon="fa-comments">
+                            <div class="o_stat_info">
+                                <field name="message_count" widget="statinfo"/>
+                                <span class="o_stat_text">Messages</span>
+                            </div>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="user_name"/>
+                            <field name="telegram_id"/>
+                        </group>
+                        <group>
+                            <field name="external_id"/>
+                            <field name="last_active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Chats">
+                            <field name="chat_ids">
+                                <tree>
+                                    <field name="title"/>
+                                    <field name="last_used"/>
+                                    <field name="message_count"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Reports">
+                            <field name="report_ids">
+                                <tree>
+                                    <field name="display_name"/>
+                                    <field name="analysis_type" widget="badge"/>
+                                    <field name="state" widget="badge"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Chat Tree View -->
+    <record id="view_chat_analysis_chat_tree" model="ir.ui.view">
+        <field name="name">chat.analysis.chat.tree</field>
+        <field name="model">chat.analysis.chat</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="title"/>
+                <field name="last_used"/>
+                <field name="message_count" widget="integer"/>
+                <field name="selected" widget="boolean_toggle"/>
+                <field name="sync_enabled" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Chat Form View -->
+    <record id="view_chat_analysis_chat_form" model="ir.ui.view">
+        <field name="name">chat.analysis.chat.form</field>
+        <field name="model">chat.analysis.chat</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_sync_messages" type="object" string="Sync Messages" class="btn-primary"/>
+                    <button name="action_refresh_stats" type="object" string="Refresh Stats"/>
+                    <field name="active" widget="boolean_toggle"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box">
+                        <button name="%(action_chat_analysis_wizard)d" type="action" class="oe_stat_button" icon="fa-search">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Analyze</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="title"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="external_id"/>
+                            <field name="last_used"/>
+                            <field name="selected"/>
+                        </group>
+                        <group>
+                            <field name="message_count" widget="statinfo"/>
+                            <field name="sync_enabled"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Users">
+                            <field name="user_ids">
+                                <tree>
+                                    <field name="user_name"/>
+                                    <field name="telegram_id"/>
+                                    <field name="message_count"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Reports">
+                            <field name="report_ids">
+                                <tree>
+                                    <field name="display_name"/>
+                                    <field name="analysis_type" widget="badge"/>
+                                    <field name="state" widget="badge"/>
+                                    <field name="create_date"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Report Tree View -->
+    <record id="view_chat_analysis_report_tree" model="ir.ui.view">
+        <field name="name">chat.analysis.report.tree</field>
+        <field name="model">chat.analysis.report</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="display_name"/>
+                <field name="chat_id"/>
+                <field name="analysis_type" widget="badge"/>
+                <field name="state" widget="badge"/>
+                <field name="compliant" widget="boolean_toggle"/>
+                <field name="create_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Report Form View -->
+    <record id="view_chat_analysis_report_form" model="ir.ui.view">
+        <field name="name">chat.analysis.report.form</field>
+        <field name="model">chat.analysis.report</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_process_review" type="object" string="Process Review" states="draft" class="btn-primary" attrs="{'invisible': [('analysis_type', '!=', 'review')]}"/>
+                    <button name="action_process_compliance" type="object" string="Check Compliance" states="draft" class="btn-primary" attrs="{'invisible': [('analysis_type', '!=', 'compliance')]}"/>
+                    <field name="state" widget="badge"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="display_name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="chat_id"/>
+                            <field name="analysis_type"/>
+                            <field name="target_datetime"/>
+                        </group>
+                        <group>
+                            <field name="lookback_minutes"/>
+                            <field name="lookforward_minutes"/>
+                        </group>
+                    </group>
+
+                    <group string="Review Results" attrs="{'invisible': [('analysis_type', '!=', 'review'), ('state', '!=', 'completed')]}">
+                        <field name="summary" nolabel="1"/>
+                        <field name="sentiment" widget="badge"/>
+                        <field name="key_points" nolabel="1"/>
+                        <group>
+                            <field name="participant_count"/>
+                            <field name="message_count"/>
+                            <field name="message_count_before"/>
+                            <field name="message_count_after"/>
+                        </group>
+                    </group>
+
+                    <group string="Compliance Results" attrs="{'invisible': [('analysis_type', '!=', 'compliance'), ('state', '!=', 'completed')]}">
+                        <field name="instruction" nolabel="1" placeholder="Instruction for compliance check..."/>
+                        <separator/>
+                        <field name="compliant" widget="boolean_toggle"/>
+                        <field name="confidence" widget="progressbar"/>
+                        <field name="explanation" nolabel="1"/>
+                        <field name="violations" nolabel="1"/>
+                        <field name="suggestions" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>
