@@ -5,3 +5,9 @@
 /uv.lock
 /bot.log
 /.coverage
+/logs/analysis_worker.log
+/logs/embeddings_worker.log
+/logs/fast_worker.log
+/.idea/modules.xml
+/.idea/shelf/Uncommitted_changes_before_Update_at_10_05_2026,_17_05_[Changes]/shelved.patch
+/.idea/shelf/Uncommitted_changes_before_Update_at_10_05_2026__17_05__Changes_.xml
