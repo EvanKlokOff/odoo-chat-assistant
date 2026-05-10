@@ -16,7 +16,7 @@
                         <field name="lookforward_minutes"/>
                         <field name="instruction"
                                placeholder="Enter instruction for compliance check..."
-                               attrs="{'invisible': [('parent.action_type', '=', 'review')]}"/>
+                               invisible="[('parent.action_type', '=', 'review')]"/>
                     </group>
                     <footer>
                         <button name="action_review" type="object" string="Run Review" class="btn-primary"/>

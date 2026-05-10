@@ -1,15 +1,8 @@
 from . import models
 from . import wizards
 
-# __init__.py
-from . import models
-from . import wizards
-
-
-def post_init_hook(cr, registry):
+def post_init_hook(env): # В Odoo 18 передается только env
     """Post-install hook to add access rights"""
-    from odoo import api, SUPERUSER_ID
-    env = api.Environment(cr, SUPERUSER_ID, {})
 
     models_to_configure = [
         ('chat.analysis.user', 'base.group_user', 1, 1, 1, 1),

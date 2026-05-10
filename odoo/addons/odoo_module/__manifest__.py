@@ -15,15 +15,16 @@
     'author': 'Your Company',
     'website': 'https://your-website.com',
     'depends': ['base', 'mail', 'contacts'],
-        'data': [
+    'data': [
         #'security/ir.model.access.csv',
+        'wizards/chat_analysis_wizard_view.xml',
         'views/chat_analysis_views.xml',
         'views/chat_menu_views.xml',
         'views/chat_settings_views.xml',
         'views/chat_report_views.xml',
-        'wizards/chat_analysis_wizard_view.xml',
         'data/chat_cron_data.xml',
     ],
+    'external_dependencies': {'python': ['requests']},
     'demo': [],
     'installable': True,
     'application': True,

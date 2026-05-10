@@ -218,34 +218,44 @@
     </record>
 
     <!-- Search View для Reports -->
-    <record id="view_chat_analysis_report_search" model="ir.ui.view">
-        <field name="name">chat.analysis.report.search</field>
-        <field name="model">chat.analysis.report</field>
-        <field name="arch" type="xml">
-            <search>
-                <field name="display_name"/>
-                <field name="chat_id"/>
-                <field name="analysis_type"/>
-                <field name="state"/>
-                <field name="compliant"/>
-                <filter name="compliant" string="Compliant" domain="[('compliant', '=', True)]"/>
-                <filter name="non_compliant" string="Non-Compliant" domain="[('compliant', '=', False)]"/>
-                <filter name="review" string="Reviews" domain="[('analysis_type', '=', 'review')]"/>
-                <filter name="compliance" string="Compliance Checks" domain="[('analysis_type', '=', 'compliance')]"/>
-                <separator/>
-                <filter name="today" string="Today" date="create_date" operator="="/>
-                <filter name="week" string="This Week" date="create_date" operator="this_week"/>
-                <filter name="month" string="This Month" date="create_date" operator="this_month"/>
-                <group expand="0" string="Group By">
-                    <filter name="group_by_chat" string="Chat" context="{'group_by': 'chat_id'}"/>
-                    <filter name="group_by_type" string="Analysis Type" context="{'group_by': 'analysis_type'}"/>
-                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
-                    <filter name="group_by_compliant" string="Compliant" context="{'group_by': 'compliant'}"/>
-                    <filter name="group_by_date" string="Create Date" context="{'group_by': 'create_date:day'}"/>
-                </group>
-            </search>
-        </field>
-    </record>
+<record id="view_chat_analysis_report_search" model="ir.ui.view">
+    <field name="name">chat.analysis.report.search</field>
+    <field name="model">chat.analysis.report</field>
+    <field name="arch" type="xml">
+        <search string="Search Reports">
+            <!-- Поля для поиска -->
+            <field name="display_name"/>
+            <field name="chat_id"/>
+            <field name="analysis_type"/>
+            <field name="state"/>
+            <field name="compliant"/>
+
+            <!-- Фильтры по статусу -->
+            <separator/>
+            <filter name="compliant" string="Compliant" domain="[('compliant', '=', True)]"/>
+            <filter name="non_compliant" string="Non-Compliant" domain="[('compliant', '=', False)]"/>
+            <filter name="review" string="Reviews" domain="[('analysis_type', '=', 'review')]"/>
+            <filter name="compliance" string="Compliance Checks" domain="[('analysis_type', '=', 'compliance')]"/>
+
+            <!-- Фильтры по дате (синтаксис Odoo 18) -->
+            <separator/>
+            <filter name="today" string="Today" date="create_date"/>
+            <filter name="last_7_days" string="Last 7 Days" date="create_date"/>
+            <filter name="last_30_days" string="Last 30 Days" date="create_date"/>
+            <filter name="this_month" string="This Month" date="create_date"/>
+
+            <!-- Группировка -->
+            <separator/>
+            <group expand="0" string="Group By">
+                <filter name="group_by_chat" string="Chat" context="{'group_by': 'chat_id'}"/>
+                <filter name="group_by_type" string="Type" context="{'group_by': 'analysis_type'}"/>
+                <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                <filter name="group_by_compliant" string="Compliant" context="{'group_by': 'compliant'}"/>
+                <filter name="group_by_date" string="Date" context="{'group_by': 'create_date:day'}"/>
+            </group>
+        </search>
+    </field>
+</record>
 
     <!-- Обновление action для reports с новыми view -->
     <record id="action_chat_analysis_reports" model="ir.actions.act_window">
@@ -265,14 +275,16 @@
         <field name="name">chat.analysis.ticket.tree</field>
         <field name="model">chat.analysis.ticket</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
                 <field name="chat_id"/>
-                <field name="priority" widget="badge" decoration-danger="priority == 'high'" decoration-warning="priority == 'urgent'"/>
+                <field name="priority" widget="badge"
+                       decoration-danger="[('priority', '=', 'high')]"
+                       decoration-warning="[('priority', '=', 'urgent')]"/>
                 <field name="state" widget="badge"/>
                 <field name="assigned_to"/>
                 <field name="create_date"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -282,9 +294,18 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_mark_in_progress" type="object" string="Mark In Progress" class="btn-primary" states="new"/>
-                    <button name="action_mark_resolved" type="object" string="Resolve" class="btn-success" states="new,in_progress"/>
-                    <button name="action_mark_closed" type="object" string="Close" class="btn-secondary" states="resolved"/>
+                    <button name="action_mark_in_progress" type="object" string="Mark In Progress"
+                            class="btn-primary"
+                            invisible="[('state', '!=', 'new')]"/>
+
+                    <button name="action_mark_resolved" type="object" string="Resolve"
+                            class="btn-success"
+                            invisible="[('state', '!=', 'new'), ('state', '!=', 'in_progress')]"/>
+
+                    <button name="action_mark_closed" type="object" string="Close"
+                            class="btn-secondary"
+                            invisible="[('state', '!=', 'resolved')]"/>
+
                     <field name="state" widget="badge"/>
                 </header>
                 <sheet>

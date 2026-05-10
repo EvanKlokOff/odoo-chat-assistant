@@ -195,6 +195,21 @@ class ChatAnalysisReport(models.Model):
             'Content-Type': 'application/json'
         }
 
+    def action_view_chart(self):
+        """Открывает аналитику для текущего отчёта"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Analytics',
+            'res_model': 'chat.analysis.report',
+            'view_mode': 'graph,pivot',
+            'res_id': self.id,
+            'target': 'current',
+            'context': {
+                'search_default_group_by_type': 1,
+            },
+        }
+
 
 class ChatAnalysisMessage(models.Model):
     _name = 'chat.analysis.message'
