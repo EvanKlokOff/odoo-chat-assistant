@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="55a1370a-10e4-4600-8281-b944b6da5411" name="Changes" comment="Добавлен модуль для экранирования текста ответа ллм" />
+    <list default="true" id="55a1370a-10e4-4600-8281-b944b6da5411" name="Changes" comment="Добавлен git_ignore">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -240,10 +243,10 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python tests.pytest for common_api.tests.test_chats.TestChatsAPI" />
-        <item itemvalue="Python tests.pytest for common_api.tests.test_messages.TestMessagesAPI" />
-        <item itemvalue="Python tests.pytest for common_api.tests.test_sync.TestSyncAPI" />
         <item itemvalue="Python tests.pytest for common_api.tests.test_users.TestUsersAPI" />
+        <item itemvalue="Python tests.pytest for common_api.tests.test_sync.TestSyncAPI" />
+        <item itemvalue="Python tests.pytest for common_api.tests.test_messages.TestMessagesAPI" />
+        <item itemvalue="Python tests.pytest for common_api.tests.test_chats.TestChatsAPI" />
         <item itemvalue="Python tests.pytest for common_api.tests.test_analysis.TestAnalysisAPI" />
       </list>
     </recent_temporary>
@@ -400,7 +403,23 @@
       <option name="project" value="LOCAL" />
       <updated>1778414548850</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Добавлен git_ignore">
+      <option name="closed" value="true" />
+      <created>1778414987393</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1778414987393</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Добавлен git_ignore">
+      <option name="closed" value="true" />
+      <created>1778415111315</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1778415111315</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -430,7 +449,9 @@
     <MESSAGE value="Добавлена API Для интеграции" />
     <MESSAGE value="Добавлен модуль с odoo" />
     <MESSAGE value="Добавлен модуль для экранирования текста ответа ллм" />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавлен модуль для экранирования текста ответа ллм" />
+    <MESSAGE value="Добавлен git_ignore" />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавлен git_ignore" />
+    <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
