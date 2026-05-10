@@ -1,5 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="action_chat_analysis_users" model="ir.actions.act_window">
+        <field name="name">Chat Users</field>
+        <field name="res_model">chat.analysis.user</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No users found. Click "Batch Sync" to load users from API.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_chat_analysis_chats" model="ir.actions.act_window">
+        <field name="name">Chats</field>
+        <field name="res_model">chat.analysis.chat</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No chats found. Click "Batch Sync" to load chats from API.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_chat_analysis_reports" model="ir.actions.act_window">
+        <field name="name">Analysis Reports</field>
+        <field name="res_model">chat.analysis.report</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_chat_analysis_messages" model="ir.actions.act_window">
+        <field name="name">Messages</field>
+        <field name="res_model">chat.analysis.message</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_chat_analysis_tickets" model="ir.actions.act_window">
+        <field name="name">Tickets</field>
+        <field name="res_model">chat.analysis.ticket</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
     <!-- Main Menu -->
     <menuitem id="menu_chat_analysis_root"
               name="Chat Analysis"
@@ -51,45 +91,4 @@
               name="Configuration"
               parent="menu_chat_analysis_root"
               sequence="20"/>
-
-    <!-- Actions -->
-    <record id="action_chat_analysis_users" model="ir.actions.act_window">
-        <field name="name">Chat Users</field>
-        <field name="res_model">chat.analysis.user</field>
-        <field name="view_mode">tree,form</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                No users found. Click "Batch Sync" to load users from API.
-            </p>
-        </field>
-    </record>
-
-    <record id="action_chat_analysis_chats" model="ir.actions.act_window">
-        <field name="name">Chats</field>
-        <field name="res_model">chat.analysis.chat</field>
-        <field name="view_mode">tree,form</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                No chats found. Click "Batch Sync" to load chats from API.
-            </p>
-        </field>
-    </record>
-
-    <record id="action_chat_analysis_reports" model="ir.actions.act_window">
-        <field name="name">Analysis Reports</field>
-        <field name="res_model">chat.analysis.report</field>
-        <field name="view_mode">tree,form</field>
-    </record>
-
-    <record id="action_chat_analysis_messages" model="ir.actions.act_window">
-        <field name="name">Messages</field>
-        <field name="res_model">chat.analysis.message</field>
-        <field name="view_mode">tree,form</field>
-    </record>
-
-    <record id="action_chat_analysis_tickets" model="ir.actions.act_window">
-        <field name="name">Tickets</field>
-        <field name="res_model">chat.analysis.ticket</field>
-        <field name="view_mode">tree,form</field>
-    </record>
 </odoo>

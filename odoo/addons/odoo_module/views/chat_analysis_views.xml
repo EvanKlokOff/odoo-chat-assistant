@@ -5,13 +5,13 @@
         <field name="name">chat.analysis.user.tree</field>
         <field name="model">chat.analysis.user</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="user_name"/>
                 <field name="telegram_id"/>
                 <field name="message_count" widget="integer"/>
                 <field name="last_active"/>
                 <field name="chat_ids" widget="many2many_tags"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -43,20 +43,20 @@
                     <notebook>
                         <page string="Chats">
                             <field name="chat_ids">
-                                <tree>
+                                <list>
                                     <field name="title"/>
                                     <field name="last_used"/>
                                     <field name="message_count"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="Reports">
                             <field name="report_ids">
-                                <tree>
+                                <list>
                                     <field name="display_name"/>
                                     <field name="analysis_type" widget="badge"/>
                                     <field name="state" widget="badge"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                     </notebook>
@@ -70,13 +70,13 @@
         <field name="name">chat.analysis.chat.tree</field>
         <field name="model">chat.analysis.chat</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="title"/>
                 <field name="last_used"/>
                 <field name="message_count" widget="integer"/>
                 <field name="selected" widget="boolean_toggle"/>
                 <field name="sync_enabled" widget="boolean_toggle"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -118,21 +118,21 @@
                     <notebook>
                         <page string="Users">
                             <field name="user_ids">
-                                <tree>
+                                <list>
                                     <field name="user_name"/>
                                     <field name="telegram_id"/>
                                     <field name="message_count"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="Reports">
                             <field name="report_ids">
-                                <tree>
+                                <list>
                                     <field name="display_name"/>
                                     <field name="analysis_type" widget="badge"/>
                                     <field name="state" widget="badge"/>
                                     <field name="create_date"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                     </notebook>
@@ -146,14 +146,14 @@
         <field name="name">chat.analysis.report.tree</field>
         <field name="model">chat.analysis.report</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="display_name"/>
                 <field name="chat_id"/>
                 <field name="analysis_type" widget="badge"/>
                 <field name="state" widget="badge"/>
                 <field name="compliant" widget="boolean_toggle"/>
                 <field name="create_date"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -164,8 +164,14 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_process_review" type="object" string="Process Review" states="draft" class="btn-primary" attrs="{'invisible': [('analysis_type', '!=', 'review')]}"/>
-                    <button name="action_process_compliance" type="object" string="Check Compliance" states="draft" class="btn-primary" attrs="{'invisible': [('analysis_type', '!=', 'compliance')]}"/>
+                    <button name="action_process_review" type="object" string="Process Review"
+                            class="btn-primary"
+                            invisible="[('state', '!=', 'draft'), ('analysis_type', '!=', 'review')]"/>
+
+                    <button name="action_process_compliance" type="object" string="Check Compliance"
+                            class="btn-primary"
+                            invisible="[('state', '!=', 'draft'), ('analysis_type', '!=', 'compliance')]"/>
+
                     <field name="state" widget="badge"/>
                 </header>
                 <sheet>
@@ -186,7 +192,8 @@
                         </group>
                     </group>
 
-                    <group string="Review Results" attrs="{'invisible': [('analysis_type', '!=', 'review'), ('state', '!=', 'completed')]}">
+                    <group string="Review Results"
+                           invisible="[('analysis_type', '!=', 'review'), ('state', '!=', 'completed')]">
                         <field name="summary" nolabel="1"/>
                         <field name="sentiment" widget="badge"/>
                         <field name="key_points" nolabel="1"/>
@@ -198,7 +205,8 @@
                         </group>
                     </group>
 
-                    <group string="Compliance Results" attrs="{'invisible': [('analysis_type', '!=', 'compliance'), ('state', '!=', 'completed')]}">
+                    <group string="Compliance Results"
+                           invisible="[('analysis_type', '!=', 'compliance'), ('state', '!=', 'completed')]">
                         <field name="instruction" nolabel="1" placeholder="Instruction for compliance check..."/>
                         <separator/>
                         <field name="compliant" widget="boolean_toggle"/>

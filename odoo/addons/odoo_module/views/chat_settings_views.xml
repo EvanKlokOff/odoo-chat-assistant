@@ -5,46 +5,58 @@
         <field name="model">res.config.settings</field>
         <field name="inherit_id" ref="base.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[@name='settings']" position="inside">
-                <div class="app_settings_block" data-string="Chat Analysis" string="Chat Analysis" id="chat_analysis_settings">
+            <xpath expr="//form" position="inside">
+                <div class="app_settings_block"
+                     data-string="Chat Analysis"
+                     string="Chat Analysis"
+                     id="chat_analysis_settings">
                     <h2>Chat Analysis Settings</h2>
                     <div class="row mt16 o_settings_container">
+
+                        <!-- API URL Setting -->
                         <div class="col-12 col-lg-6 o_setting_box">
                             <div class="o_setting_left_pane">
                                 <field name="chat_analysis_api_url"/>
                             </div>
                             <div class="o_setting_right_pane">
-                                <label string="API URL"/>
+                                <label for="chat_analysis_api_url" string="API URL"/>
                                 <div class="text-muted">URL of the Chat Analysis API service</div>
                             </div>
                         </div>
+
+                        <!-- API Key Setting -->
                         <div class="col-12 col-lg-6 o_setting_box">
                             <div class="o_setting_left_pane">
-                                <field name="chat_analysis_api_key"/>
+                                <field name="chat_analysis_api_key" password="True"/>
                             </div>
                             <div class="o_setting_right_pane">
-                                <label string="API Key"/>
+                                <label for="chat_analysis_api_key" string="API Key"/>
                                 <div class="text-muted">API key for authentication with the chat analysis service</div>
                             </div>
                         </div>
+
+                        <!-- Auto Sync Setting -->
                         <div class="col-12 col-lg-6 o_setting_box">
                             <div class="o_setting_left_pane">
                                 <field name="chat_analysis_auto_sync"/>
                             </div>
                             <div class="o_setting_right_pane">
-                                <label string="Auto Sync"/>
+                                <label for="chat_analysis_auto_sync" string="Auto Sync"/>
                                 <div class="text-muted">Automatically sync chats and messages</div>
                             </div>
                         </div>
+
+                        <!-- Sync Interval Setting -->
                         <div class="col-12 col-lg-6 o_setting_box">
                             <div class="o_setting_left_pane">
                                 <field name="chat_analysis_sync_interval"/>
                             </div>
                             <div class="o_setting_right_pane">
-                                <label string="Sync Interval (hours)"/>
+                                <label for="chat_analysis_sync_interval" string="Sync Interval (hours)"/>
                                 <div class="text-muted">How often to sync data from the API</div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </xpath>
