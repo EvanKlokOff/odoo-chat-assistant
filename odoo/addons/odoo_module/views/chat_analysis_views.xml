@@ -9,6 +9,7 @@
                 <field name="user_name"/>
                 <field name="telegram_id"/>
                 <field name="message_count" widget="integer"/>
+                <field name="chat_count" widget="integer"/>
                 <field name="last_active"/>
                 <field name="chat_ids" widget="many2many_tags"/>
             </list>
@@ -32,6 +33,12 @@
                         <button name="action_sync_user_data" type="object" class="oe_stat_button" icon="fa-refresh">
                             <div class="o_stat_info">
                                 <span class="o_stat_text">Sync User</span>
+                            </div>
+                        </button>
+                        <button name="action_sync_user_chats" type="object" class="oe_stat_button" icon="fa-comments">
+                            <div class="o_stat_info">
+                                <field name="chat_count" widget="statinfo"/>
+                                <span class="o_stat_text">Sync Chats</span>
                             </div>
                         </button>
                     </div>
@@ -93,7 +100,8 @@
             <form>
                 <header>
                     <button name="action_sync_messages" type="object" string="Sync Messages" class="btn-primary"/>
-                    <button name="action_sync_all_messages" type="object" string="Sync All Pages" class="btn-secondary"/>
+                    <button name="action_sync_all_messages" type="object" string="Sync All Pages"
+                            class="btn-secondary"/>
                     <button name="action_refresh_stats" type="object" string="Refresh Stats"/>
                     <field name="active" widget="boolean_toggle"/>
                 </header>

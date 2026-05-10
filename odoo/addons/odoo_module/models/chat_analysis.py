@@ -183,7 +183,7 @@ class ChatAnalysisReport(models.Model):
     def _get_api_url(self):
         """Получает URL API из настроек"""
         config = self.env['ir.config_parameter'].sudo()
-        base_url = config.get_param('chat_analysis.api_url', 'http://localhost:8000')
+        base_url = config.get_param('chat_analysis.api_url', 'http://chat_api:8000')
         return base_url.rstrip('/') + '/api/v1'
 
     def _get_headers(self):

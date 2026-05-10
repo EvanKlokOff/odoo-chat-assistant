@@ -1,28 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="55a1370a-10e4-4600-8281-b944b6da5411" name="Changes" comment="Добавлен git_ignore">
-      <change afterPath="$PROJECT_DIR$/Dockerfile.api" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/data/chat_settings_data.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/requirements.api.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common_api/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/common_api/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common_api/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/common_api/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.all.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.all.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/__manifest__.py" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/__manifest__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/controllers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/controllers/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/__init__.py" afterDir="false" />
+    <list default="true" id="55a1370a-10e4-4600-8281-b944b6da5411" name="Changes" comment="Добавлена рабочая версия одоо модуля с поддержкой синхронизации пользователей и чатов">
+      <change afterPath="$PROJECT_DIR$/common_api/enums.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common_api/schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/common_api/schemas.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common_api/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/common_api/utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/models/chat_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/chat_analysis.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/models/chat_user.py" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/chat_user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/models/res_config_settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/res_config_settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_analysis_views.xml" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_analysis_views.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_menu_views.xml" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_menu_views.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_report_views.xml" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_report_views.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_settings_views.xml" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_settings_views.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/wizards/chat_analysis_wizard.py" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/wizards/chat_analysis_wizard.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/wizards/chat_analysis_wizard_view.xml" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/wizards/chat_analysis_wizard_view.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,8 +18,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="Dockerfile" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -122,6 +108,7 @@
       <recent name="$PROJECT_DIR$/odoo_module/static/description" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/common_api" />
       <recent name="$PROJECT_DIR$/odoo/addons/odoo_module/views" />
       <recent name="$PROJECT_DIR$/odoo/addons" />
       <recent name="$PROJECT_DIR$/odoo_module/wizards" />
@@ -448,7 +435,15 @@
       <option name="project" value="LOCAL" />
       <updated>1778415358124</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Добавлена рабочая версия одоо модуля с поддержкой синхронизации пользователей и чатов">
+      <option name="closed" value="true" />
+      <created>1778433833103</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1778433833103</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -479,7 +474,8 @@
     <MESSAGE value="Добавлен модуль с odoo" />
     <MESSAGE value="Добавлен модуль для экранирования текста ответа ллм" />
     <MESSAGE value="Добавлен git_ignore" />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавлен git_ignore" />
+    <MESSAGE value="Добавлена рабочая версия одоо модуля с поддержкой синхронизации пользователей и чатов" />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавлена рабочая версия одоо модуля с поддержкой синхронизации пользователей и чатов" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
   </component>
   <component name="XDebuggerManager">

@@ -1,7 +1,11 @@
+from datetime import datetime, timedelta
+
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi import HTTPException, Depends, Security
 from common_api.config import settings
 from typing import Optional, Dict
+
+from common_api.enums import PeriodType
 from src.database.session import get_db
 
 security = HTTPBearer()
@@ -53,3 +57,35 @@ async def get_pagination(
         "offset": (page - 1) * per_page,
         "limit": per_page
     }
+
+
+def get_date_range_from_period(
+        period_type: PeriodType,
+        start_datetime: Optional[datetime] = None,
+        end_datetime: Optional[datetime] = None
+) -> tuple:
+    """Получает start_date и end_date на основе типа периода"""
+    now = datetime.now()
+
+    if period_type == PeriodType.HOUR:
+        start_date = now - timedelta(hours=1)
+        end_date = now
+    elif period_type == PeriodType.DAY:
+        start_date = now - timedelta(days=1)
+        end_date = now
+    elif period_type == PeriodType.WEEK:
+        start_date = now - timedelta(days=7)
+        end_date = now
+    elif period_type == PeriodType.MONTH:
+        start_date = now - timedelta(days=30)
+        end_date = now
+    elif period_type == PeriodType.CUSTOM:
+        if not start_datetime or not end_datetime:
+            raise ValueError("For CUSTOM period, start_datetime and end_datetime are required")
+        start_date = start_datetime
+        end_date = end_datetime
+    else:
+        start_date = now - timedelta(days=1)
+        end_date = now
+
+    return start_date, end_date

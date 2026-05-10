@@ -5,35 +5,57 @@
         <field name="model">res.config.settings</field>
         <field name="inherit_id" ref="base.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[hasclass('settings')]" position="inside">
+            <!-- Добавляем настройки в конец формы -->
+            <xpath expr="//form" position="inside">
                 <div class="app_settings_block" data-string="Chat Analysis" string="Chat Analysis" id="chat_analysis_settings">
                     <h2>Chat Analysis</h2>
-
-                    <!-- API URL -->
-                    <setting string="API URL" help="URL of the Chat Analysis API service">
-                        <field name="chat_analysis_api_url" placeholder="http://chat_api:8000"/>
-                    </setting>
-
-                    <!-- API Key -->
-                    <setting string="API Key" help="API key for authentication with the chat analysis service">
-                        <field name="chat_analysis_api_key" password="True"/>
-                    </setting>
-
-                    <!-- Auto Sync -->
-                    <setting string="Auto Sync" help="Automatically sync chats and messages">
-                        <field name="chat_analysis_auto_sync"/>
-                    </setting>
-
-                    <!-- Sync Interval -->
-                    <setting string="Sync Interval (hours)" help="How often to sync data from the API">
-                        <field name="chat_analysis_sync_interval"/>
-                    </setting>
-
-                    <!-- Test Connection Button -->
-                    <setting string="API Connection Test" help="Click to test connection to Chat Analysis API">
-                        <button name="action_test_api_connection" type="object" string="Test Connection" class="btn-primary"/>
-                    </setting>
-
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="chat_analysis_api_url" placeholder="http://chat_api:8000"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="chat_analysis_api_url" string="API URL"/>
+                                <div class="text-muted">URL of the Chat Analysis API service</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="chat_analysis_api_key" password="True"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="chat_analysis_api_key" string="API Key"/>
+                                <div class="text-muted">API key for authentication with the chat analysis service</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="chat_analysis_auto_sync"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="chat_analysis_auto_sync" string="Auto Sync"/>
+                                <div class="text-muted">Automatically sync chats and messages</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="chat_analysis_sync_interval"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="chat_analysis_sync_interval" string="Sync Interval (hours)"/>
+                                <div class="text-muted">How often to sync data from the API</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <button name="action_test_api_connection" type="object" string="Test Connection" class="btn-primary"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">API Connection Test</span>
+                                <div class="text-muted">Click to test connection to Chat Analysis API</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </xpath>
         </field>

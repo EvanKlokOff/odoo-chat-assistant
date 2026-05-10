@@ -3,6 +3,8 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime
 from enum import Enum
 
+from common_api.enums import PeriodType
+
 
 # ========== Base Responses ==========
 class BaseResponse(BaseModel):
@@ -171,3 +173,26 @@ class IncrementalSyncResponse(BaseModel):
     last_sync: datetime
     has_more: bool
     data: Dict[str, List[Dict[str, Any]]]
+
+
+class ReviewByPeriodRequest(BaseModel):
+    chat_id: str
+    period_type: PeriodType = Field(default=PeriodType.DAY, description="Period type: hour, day, week, month, custom")
+    start_datetime: Optional[datetime] = Field(None, description="Start date for custom period")
+    end_datetime: Optional[datetime] = Field(None, description="End date for custom period")
+
+
+class ComplianceByPeriodRequest(BaseModel):
+    chat_id: str
+    description: str = Field(..., min_length=5, max_length=2000)
+    period_type: PeriodType = Field(default=PeriodType.DAY, description="Period type: hour, day, week, month, custom")
+    start_datetime: Optional[datetime] = Field(None, description="Start date for custom period")
+    end_datetime: Optional[datetime] = Field(None, description="End date for custom period")
+
+
+class ReviewByPeriodResponse(ReviewResponse):
+    period_info: Dict[str, Any] = Field(default_factory=dict)
+
+
+class ComplianceByPeriodResponse(ComplianceResponse):
+    period_info: Dict[str, Any] = Field(default_factory=dict)

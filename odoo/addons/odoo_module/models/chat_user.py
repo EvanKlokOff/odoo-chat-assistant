@@ -21,10 +21,27 @@ class ChatAnalysisUser(models.Model):
 
     message_count = fields.Integer(string='Messages Count', compute='_compute_message_count')
     last_active = fields.Datetime(string='Last Active', compute='_compute_last_active')
+    chat_count = fields.Integer(string='Chats Count', compute='_compute_chat_count', store=False)
 
     _sql_constraints = [
         ('external_id_unique', 'unique(external_id)', 'User ID must be unique!')
     ]
+
+    def _parse_datetime(self, dt_str):
+        """Парсит datetime из API в формат Odoo"""
+        if not dt_str:
+            return False
+        try:
+            # Пробуем ISO формат с микросекундами
+            if '.' in dt_str:
+                # Обрезаем микросекунды и Z (timezone)
+                dt_str = dt_str.split('.')[0].replace('Z', '')
+            return datetime.strptime(dt_str, '%Y-%m-%dT%H:%M:%S')
+        except:
+            try:
+                return datetime.strptime(dt_str, '%Y-%m-%d %H:%M:%S')
+            except:
+                return False
 
     def _compute_message_count(self):
         for user in self:
@@ -38,6 +55,11 @@ class ChatAnalysisUser(models.Model):
                 ('user_id', '=', user.id)
             ], order='timestamp desc', limit=1)
             user.last_active = last_message.timestamp if last_message else False
+
+    def _compute_chat_count(self):
+        """Вычисляет количество чатов пользователя"""
+        for user in self:
+            user.chat_count = len(user.chat_ids)
 
     def action_view_messages(self):
         return {
@@ -55,7 +77,7 @@ class ChatAnalysisUser(models.Model):
 
         try:
             config = self.env['ir.config_parameter'].sudo()
-            api_url = config.get_param('chat_analysis.api_url', 'http://localhost:8000').rstrip('/') + '/api/v1'
+            api_url = config.get_param('chat_analysis.api_url', 'http://chat_api:8000').rstrip('/') + '/api/v1'
             api_key = config.get_param('chat_analysis.api_key', '')
             headers = {'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'}
 
@@ -71,20 +93,176 @@ class ChatAnalysisUser(models.Model):
                     'telegram_id': user_data.get('telegram_id', self.telegram_id),
                 })
 
-                return {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'title': _('Success'),
-                        'message': _('User data synchronized'),
-                        'type': 'success',
-                    }
-                }
-            else:
-                raise UserError(f"API Error: {response.text}")
+            # 2. Синхронизация чатов пользователя
+            chats_response = requests.get(
+                f"{api_url}/users/{self.external_id}/chats",
+                headers=headers, timeout=30
+            )
 
+            if chats_response.status_code == 200:
+                user_chats = chats_response.json()
+
+                # Обновляем связи пользователь-чат
+                chat_ids = []
+                for chat_data in user_chats:
+                    # Находим или создаем чат
+                    chat = self.env['chat.analysis.chat'].search([
+                        ('external_id', '=', chat_data['chat_id'])
+                    ], limit=1)
+
+                    last_used = self._parse_datetime(chat_data['last_used'])
+
+                    if not chat:
+                        chat = self.env['chat.analysis.chat'].create({
+                            'external_id': chat_data['chat_id'],
+                            'title': chat_data.get('title', f"Chat_{chat_data['chat_id']}"),
+                            'last_used': last_used,
+                            'selected': chat_data.get('selected', False),
+                            'sync_enabled': True,
+                        })
+                    else:
+                        # Обновляем существующий чат
+                        chat.write({
+                            'title': chat_data.get('title', chat.title),
+                            'last_used': last_used or chat.last_used,
+                            'selected': chat_data.get('selected', chat.selected),
+                        })
+
+                    chat_ids.append(chat.id)
+
+                # Обновляем связи Many2many
+                self.write({'chat_ids': [(6, 0, chat_ids)]})
+                self._compute_chat_count()
+
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Success'),
+                    'message': _(f'User data synchronized. Found {len(chat_ids)} chats'),
+                    'type': 'success',
+                }
+            }
         except Exception as e:
             raise UserError(f"Sync failed: {str(e)}")
+
+    def action_sync_user_chats(self):
+        """Синхронизировать только чаты пользователя (без обновления данных пользователя)"""
+        self.ensure_one()
+
+        try:
+            config = self.env['ir.config_parameter'].sudo()
+            api_url = config.get_param('chat_analysis.api_url', 'http://chat_api:8000').rstrip('/') + '/api/v1'
+            api_key = config.get_param('chat_analysis.api_key', '')
+            headers = {'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'}
+
+            chats_response = requests.get(
+                f"{api_url}/users/{self.external_id}/chats",
+                headers=headers, timeout=30
+            )
+
+            if chats_response.status_code == 200:
+                user_chats = chats_response.json()
+
+                chat_ids = []
+                for chat_data in user_chats:
+                    chat = self.env['chat.analysis.chat'].search([
+                        ('external_id', '=', chat_data['chat_id'])
+                    ], limit=1)
+
+                    last_used = self._parse_datetime(chat_data.get('last_used'))
+
+                    if not chat:
+                        chat = self.env['chat.analysis.chat'].create({
+                            'external_id': chat_data['chat_id'],
+                            'title': chat_data.get('title', f"Chat_{chat_data['chat_id']}"),
+                            'last_used': last_used,
+                            'selected': chat_data.get('selected', False),
+                            'sync_enabled': True,
+                        })
+                    else:
+                        chat.write({
+                            'title': chat_data.get('title', chat.title),
+                            'last_used': last_used or chat.last_used,
+                        })
+
+                    chat_ids.append(chat.id)
+
+                self.write({'chat_ids': [(6, 0, chat_ids)]})
+                self._compute_chat_count()
+
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Success'),
+                    'message': _(f'User chats synchronized. Found {len(chat_ids)} chats'),
+                    'type': 'success',
+                }
+            }
+        except Exception as e:
+            raise UserError(f"Sync failed: {str(e)}")
+
+    def action_sync_all_users_chats(self):
+        """Синхронизировать чаты для всех пользователей"""
+        users = self.search([])
+        success_count = 0
+
+        for user in users:
+            try:
+                config = self.env['ir.config_parameter'].sudo()
+                api_url = config.get_param('chat_analysis.api_url', 'http://chat_api:8000').rstrip('/') + '/api/v1'
+                api_key = config.get_param('chat_analysis.api_key', '')
+                headers = {'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'}
+
+                chats_response = requests.get(
+                    f"{api_url}/users/{user.external_id}/chats",
+                    headers=headers, timeout=30
+                )
+
+                if chats_response.status_code == 200:
+                    user_chats = chats_response.json()
+                    chat_ids = []
+
+                    for chat_data in user_chats:
+                        chat = self.env['chat.analysis.chat'].search([
+                            ('external_id', '=', chat_data['chat_id'])
+                        ], limit=1)
+
+                        last_used = self._parse_datetime(chat_data.get('last_used'))
+
+                        if not chat:
+                            chat = self.env['chat.analysis.chat'].create({
+                                'external_id': chat_data['chat_id'],
+                                'title': chat_data.get('title', f"Chat_{chat_data['chat_id']}"),
+                                'last_used': last_used,
+                                'selected': chat_data.get('selected', False),
+                                'sync_enabled': True,
+                            })
+                        else:
+                            chat.write({
+                                'title': chat_data.get('title', chat.title),
+                                'last_used': last_used or chat.last_used,
+                            })
+
+                        chat_ids.append(chat.id)
+
+                    user.write({'chat_ids': [(6, 0, chat_ids)]})
+                    success_count += 1
+
+            except Exception as e:
+                _logger.error(f"Failed to sync chats for user {user.external_id}: {e}")
+                continue
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Success'),
+                'message': _(f'Chats synchronized for {success_count} users'),
+                'type': 'success',
+            }
+        }
 
 
 class ChatAnalysisChat(models.Model):
@@ -118,7 +296,7 @@ class ChatAnalysisChat(models.Model):
         try:
             # Получаем настройки API
             config = self.env['ir.config_parameter'].sudo()
-            api_url = config.get_param('chat_analysis.api_url', 'http://localhost:8000').rstrip('/') + '/api/v1'
+            api_url = config.get_param('chat_analysis.api_url', 'http://chat_api:8000').rstrip('/') + '/api/v1'
             api_key = config.get_param('chat_analysis.api_key', '')
             headers = {'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'}
 
@@ -205,14 +383,13 @@ class ChatAnalysisChat(models.Model):
             }
         }
 
-
     def action_sync_all_messages(self):
         """Синхронизировать все страницы сообщений чата"""
         self.ensure_one()
 
         try:
             config = self.env['ir.config_parameter'].sudo()
-            api_url = config.get_param('chat_analysis.api_url', 'http://localhost:8000').rstrip('/') + '/api/v1'
+            api_url = config.get_param('chat_analysis.api_url', 'http://chat_api:8000').rstrip('/') + '/api/v1'
             api_key = config.get_param('chat_analysis.api_key', '')
             headers = {'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'}
 
