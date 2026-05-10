@@ -28,12 +28,6 @@ def private_chat_only(func):
     return wrapper
 
 
-def escape_markdown(text: str) -> str:
-    """Escape special characters for Telegram MarkdownV2"""
-    special_chars = r'_*[]()~`>#+-=|{}.!'
-    return re.sub(f'([{re.escape(special_chars)}])', r'\\\1', text)
-
-
 def get_date_hours(hours: int):
     """Возращает диапозон дат, длинной в hours часов"""
     now = datetime.now()
@@ -169,42 +163,231 @@ async def run_compliance_analysis_async(
     )
 
 
-async def _send_long_message(message: types.Message, text: str, prefix: str = "",
-                             parse_mode: str | None = None):
-    """Split long message into multiple parts"""
-    max_length = 4000
+# def escape_markdown(text: str) -> str:
+#     """Escape special characters for Telegram MarkdownV2"""
+#     special_chars = r'_*[]()~`>#+-=|{}.!'
+#     return re.sub(f'([{re.escape(special_chars)}])', r'\\\1', text)
+#
+#
+# async def send_long_message(message: types.Message, text: str, prefix: str = "",
+#                             parse_mode: str = "Markdown"):
+#     """Split long message into multiple parts"""
+#     max_length = 4000
+#
+#     safe_text = escape_markdown(text)
+#     full_message = f"{prefix}\n\n{safe_text}" if prefix else safe_text
+#
+#     if len(full_message) <= max_length:
+#         await message.answer(full_message, parse_mode=parse_mode)
+#         return
+#
+#     # Если сообщение слишком длинное, разбиваем на части
+#     if prefix:
+#         first_part = f"{prefix}\n\n"
+#         remaining = safe_text
+#     else:
+#         first_part = ""
+#         remaining = safe_text
+#
+#     parts = []
+#     current_part = first_part
+#
+#     for line in remaining.split('\n'):
+#         if len(current_part) + len(line) + 1 > max_length:
+#             parts.append(current_part)
+#             current_part = line
+#         else:
+#             current_part += '\n' + line if current_part else line
+#
+#     if current_part:
+#         parts.append(current_part)
+#
+#     # Отправляем все части
+#     for i, part in enumerate(parts):
+#         if i == 0 and prefix:
+#             await message.answer(part, parse_mode=parse_mode)
+#         else:
+#             await message.answer(part, parse_mode=parse_mode)
 
-    safe_text = escape_markdown(text)
-    full_message = f"{prefix}\n\n{safe_text}" if prefix else safe_text
+import re
+from typing import Tuple, Optional, List
 
-    if len(full_message) <= max_length:
-        await message.answer(full_message, parse_mode=parse_mode)
-        return
 
-    # Если сообщение слишком длинное, разбиваем на части
-    if prefix:
-        first_part = f"{prefix}\n\n"
-        remaining = safe_text
-    else:
-        first_part = ""
-        remaining = safe_text
+def escape_markdown(text: str) -> str:
+    """
+    Экранирует специальные символы для Telegram Markdown (старая версия)
+
+    Спецсимволы: _ * [ ] ( ) ~ ` > # + - = | { } . !
+    Для старого Markdown нужно экранировать:
+    - _ * [ ] ( ) ~ ` > # + - = | { } . !
+    - Обратные кавычки для кода экранируем, но осторожно
+    """
+    if not text:
+        return text
+
+    # Специальные символы Markdown
+    special_chars = r'_*[]()~`>#+\-=|{}.!'
+
+    # Экранируем все спецсимволы
+    escaped = re.sub(f'([{re.escape(special_chars)}])', r'\\\1', text)
+
+    # Возвращаем обратно экранирование для обратных кавычек внутри кода
+    # (это упрощенная версия, для сложных случаев лучше использовать preserve_code_blocks)
+    return escaped
+
+
+def escape_markdown_preserve_code(text: str) -> str:
+    """
+    Экранирует Markdown, сохраняя кодовые блоки ```code``` и `code`
+    """
+    if not text:
+        return text
+
+    special_chars = r'_*[]()~>#+\-=|{}.!'
+    result = []
+    pos = 0
+    length = len(text)
+
+    while pos < length:
+        # Проверяем многострочный кодовый блок
+        if pos + 2 < length and text[pos:pos + 3] == '```':
+            end_pos = text.find('```', pos + 3)
+            if end_pos != -1:
+                # Копируем блок без экранирования
+                result.append(text[pos:end_pos + 3])
+                pos = end_pos + 3
+                continue
+
+        # Проверяем инлайн-код
+        elif text[pos] == '`':
+            end_pos = text.find('`', pos + 1)
+            if end_pos != -1:
+                # Проверяем, что это не начало ``````
+                if end_pos + 1 < length and text[end_pos + 1] == '`':
+                    result.append(re.sub(f'([{re.escape(special_chars)}])', r'\\\1', text[pos]))
+                    pos += 1
+                    continue
+
+                # Инлайн-код: копируем без экранирования
+                result.append(text[pos:end_pos + 1])
+                pos = end_pos + 1
+                continue
+
+        # Обычный текст - экранируем спецсимволы
+        result.append(re.sub(f'([{re.escape(special_chars)}])', r'\\\1', text[pos]))
+        pos += 1
+
+    return ''.join(result)
+
+
+def split_long_message(text: str, max_length: int = 4096) -> List[str]:
+    """
+    Разбивает длинное сообщение на части, сохраняя целостность строк
+
+    Args:
+        text: Текст для разбиения
+        max_length: Максимальная длина одной части (Telegram: 4096)
+
+    Returns:
+        Список частей сообщения
+    """
+    if len(text) <= max_length:
+        return [text]
 
     parts = []
-    current_part = first_part
+    lines = text.split('\n')
+    current_part = ""
 
-    for line in remaining.split('\n'):
+    for line in lines:
+        # Если одна строка длиннее лимита, разбиваем её
+        if len(line) > max_length:
+            if current_part:
+                parts.append(current_part)
+                current_part = ""
+
+            # Разбиваем длинную строку
+            for i in range(0, len(line), max_length):
+                parts.append(line[i:i + max_length])
+            continue
+
+        # Проверяем, влезет ли строка в текущую часть
         if len(current_part) + len(line) + 1 > max_length:
             parts.append(current_part)
             current_part = line
         else:
-            current_part += '\n' + line if current_part else line
+            if current_part:
+                current_part += "\n" + line
+            else:
+                current_part = line
 
     if current_part:
         parts.append(current_part)
 
-    # Отправляем все части
-    for i, part in enumerate(parts):
-        if i == 0 and prefix:
-            await message.answer(part, parse_mode=parse_mode)
-        else:
-            await message.answer(part, parse_mode=parse_mode)
+    return parts
+
+
+def prepare_markdown_message(
+        text: str,
+        preserve_code_blocks: bool = True,
+        max_length: int = 4096
+) -> Tuple[List[str], str]:
+    """
+    Подготавливает сообщение с Markdown форматированием
+
+    Args:
+        text: Исходный текст
+        preserve_code_blocks: Сохранять ли кодовые блоки
+        max_length: Максимальная длина сообщения
+
+    Returns:
+        (parts, parse_mode) - части сообщения и режим парсинга
+    """
+    # Экранируем текст
+    if preserve_code_blocks:
+        safe_text = escape_markdown_preserve_code(text)
+    else:
+        safe_text = escape_markdown(text)
+
+    # Разбиваем на части
+    parts = split_long_message(safe_text, max_length)
+
+    return parts, "Markdown"
+
+
+def clean_llm_response(text: str, task_id: str = "", task_type: str = "review") -> Tuple[List[str], str]:
+    """
+    Подготавливает ответ LLM к отправке в Telegram
+
+    Args:
+        text: Результат от LLM
+        task_id: ID задачи (опционально)
+        task_type: Тип задачи (review или compliance)
+
+    Returns:
+        (message_parts, parse_mode)
+    """
+    # Ограничиваем длину текста
+    if len(text) > 3500:
+        text = text[:3500] + "\n\n...(результат сокращен)"
+
+    # Выбираем заголовок
+    if task_type == "review":
+        header = "📊 *Ревью чата завершено!*"
+    else:
+        header = "✅ *Проверка соответствия завершена!*"
+
+    # Формируем полное сообщение
+    if task_id:
+        full_message = (
+            f"{header}\n\n"
+            f"📝 *Результат:*\n{text}\n\n"
+            f"🆔 ID задачи: `{task_id[:8]}...`"
+        )
+    else:
+        full_message = (
+            f"{header}\n\n"
+            f"📝 *Результат:*\n{text}"
+        )
+
+    # Подготавливаем с сохранением кодовых блоков
+    return prepare_markdown_message(full_message, preserve_code_blocks=True)

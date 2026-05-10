@@ -1,5 +1,8 @@
 # src/tasks/monitor_tasks.py
 import logging
+
+import asyncio
+from src.interfaces.telegram.utils import clean_llm_response, split_long_message
 from src.database import crud
 from src.tasks.celery_app import celery_app
 from src.tasks.utils import async_celery_task, async_celery_task_bind
@@ -31,29 +34,42 @@ async def monitor_analysis_tasks():
                 continue
 
             result_text = task.result if task.result else "Анализ завершен"
-            if len(result_text) > 3500:
-                result_text = result_text[:3500] + "\n\n...(результат сокращен)"
+            # if len(result_text) > 3500:
+            #     result_text = result_text[:3500] + "\n\n...(результат сокращен)"
 
             task_type = task.task_type.value if hasattr(task.task_type, 'value') else task.task_type
 
-            if task_type == "review":
-                header = "📊 *Ревью чата завершено!*"
-            else:
-                header = "✅ *Проверка соответствия завершена!*"
-
-            text = (
-                f"{header}\n\n"
-                f"📝 *Результат:*\n{result_text}\n\n"
-                f"🆔 ID задачи: `{task.task_id[:8]}...`"
+            message_parts, parse_mode = clean_llm_response(
+                text=result_text,
+                task_id=task.task_id,
+                task_type=task_type
             )
 
-            # Отправляем через отдельную задачу
             send_notification.delay(
                 user_id=task.user_id,
-                text=text,
+                message_parts=message_parts,
+                parse_mode=parse_mode,
                 task_id=task.task_id
-
             )
+
+            # if task_type == "review":
+            #     header = "📊 *Ревью чата завершено!*"
+            # else:
+            #     header = "✅ *Проверка соответствия завершена!*"
+
+            # text = (
+            #     f"{header}\n\n"
+            #     f"📝 *Результат:*\n{result_text}\n\n"
+            #     f"🆔 ID задачи: `{task.task_id[:8]}...`"
+            # )
+
+            # Отправляем через отдельную задачу
+            # send_notification.delay(
+            #     user_id=task.user_id,
+            #     text=text,
+            #     task_id=task.task_id
+            #
+            # )
 
         return {"status": "success", "processed": len(unnotified_tasks)}
 
@@ -65,22 +81,48 @@ async def monitor_analysis_tasks():
 @celery_app.task(
     name="send_notification",
     bind=True,
-    max_retries=2,  # Уменьшил количество ретраев
+    max_retries=3,  # Уменьшил количество ретраев
     default_retry_delay=5
 )
 @async_celery_task_bind()
-async def send_notification(self, user_id: int, text: str, task_id: str):
+async def send_notification(self, user_id: int, message_parts: list[str], parse_mode:str,
+                            #text: str,
+                            task_id: str):
     """Отправка уведомления пользователю"""
     try:
         from src.interfaces.telegram.bot import bot
 
-        await bot.send_message(
-            chat_id=user_id,
-            text=text,
-            parse_mode="Markdown"
-        )
+        for i, part in enumerate(message_parts):
+            try:
+                if parse_mode:
+                    await bot.send_message(
+                        chat_id=user_id,
+                        text=part,
+                        parse_mode=parse_mode
+                    )
+                else:
+                    await bot.send_message(
+                        chat_id=user_id,
+                        text=part
+                    )
+                if i < len(message_parts) - 1:
+                    await asyncio.sleep(0.5)
+            except Exception as part_error:
+                logger.error(f"Error sending part {i + 1}: {part_error}")
+                # Если часть не отправилась с Markdown, пробуем без форматирования
+                if parse_mode and "can't parse entities" in str(part_error):
+                    logger.warning(f"Part {i + 1} failed with Markdown, retrying as plain text")
+                    await bot.send_message(
+                        chat_id=user_id,
+                        text=part  # Отправляем как есть, без парсинга
+                    )
+                else:
+                    raise
+            await crud.mark_task_as_notified(task_id)
+            logger.info(f"✅ Notified user {user_id} about task {task_id} ({len(message_parts)} parts)")
 
-        await crud.mark_task_as_notified(task_id)
+            return {"status": "success", "parts_sent": len(message_parts)}
+
         logger.info(f"✅ Notified user {user_id} about task {task_id}")
 
     except Exception as e:
@@ -91,9 +133,28 @@ async def send_notification(self, user_id: int, text: str, task_id: str):
             await crud.mark_task_as_notified(task_id)
             return {"status": "skipped", "reason": "user_is_bot"}
 
+        if "can't parse entities" in error_msg:
+            logger.warning(f"Parse error, retrying as plain text")
+            try:
+                from src.interfaces.telegram.bot import bot
+                # Объединяем все части в один текст для plain text
+                plain_text = "\n\n".join(message_parts)
+                # Разбиваем заново без Markdown
+                plain_parts = split_long_message(plain_text)
+
+                for part in plain_parts:
+                    await bot.send_message(chat_id=user_id, text=part)
+
+                await crud.mark_task_as_notified(task_id)
+                return {"status": "success", "fallback": "plain_text"}
+            except Exception as fallback_error:
+                logger.error(f"Plain text fallback failed: {fallback_error}")
+
+            # Ретраи
         if self.request.retries < self.max_retries:
             logger.info(f"Retrying notification for task {task_id}, attempt {self.request.retries + 1}")
-            raise self.retry(exc=e, countdown=5)
+            raise self.retry(exc=e, countdown=5 * (self.request.retries + 1))
+
 
         logger.error(f"Failed to notify user {user_id} after {self.max_retries} retries: {e}")
         # Помечаем как уведомленное, чтобы не пытаться снова

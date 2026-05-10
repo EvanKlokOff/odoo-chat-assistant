@@ -1,32 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="55a1370a-10e4-4600-8281-b944b6da5411" name="Changes" comment="Добавлена API Для интеграции">
-      <change afterPath="$PROJECT_DIR$/docker-compose.all.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/__manifest__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/controllers/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/controllers/chat_controller.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/data/chat_cron_data.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/chat_analysis.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/chat_report.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/chat_user.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/ir_model_access.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/res_config_settings.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/security/ir.model.access.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/static/description/icon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_analysis_views.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_menu_views.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_report_views.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_settings_views.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/wizards/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/wizards/chat_analysis_wizard.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/wizards/chat_analysis_wizard_view.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/postgres-init-odoo/init.sql" afterDir="false" />
+    <list default="true" id="55a1370a-10e4-4600-8281-b944b6da5411" name="Changes" comment="Добавлен модуль с odoo">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/database/crud.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/crud.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/telegram/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/telegram/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tasks/monitor_tasks.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tasks/monitor_tasks.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -306,6 +284,7 @@
       <workItem from="1778047345092" duration="1442000" />
       <workItem from="1778130024032" duration="4540000" />
       <workItem from="1778218820045" duration="601000" />
+      <workItem from="1778316556519" duration="292000" />
     </task>
     <task id="LOCAL-00001" summary="Init commit">
       <option name="closed" value="true" />
@@ -403,7 +382,15 @@
       <option name="project" value="LOCAL" />
       <updated>1778005737215</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Добавлен модуль с odoo">
+      <option name="closed" value="true" />
+      <created>1778316575594</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1778316575594</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -431,7 +418,8 @@
     <MESSAGE value="Добавление новой очереди worker-fast для обработки переодических задач, также настройка redbeat" />
     <MESSAGE value="Полностью рабочая версия бота, использующая селери для генерации анализов, эмбедингов, переодические задачи для готовности анализов" />
     <MESSAGE value="Добавлена API Для интеграции" />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавлена API Для интеграции" />
+    <MESSAGE value="Добавлен модуль с odoo" />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавлен модуль с odoo" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
