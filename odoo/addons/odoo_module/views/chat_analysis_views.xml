@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- User Tree View -->
-    <record id="view_chat_analysis_user_tree" model="ir.ui.view">
-        <field name="name">chat.analysis.user.tree</field>
+    <!-- User List View -->
+    <record id="view_chat_analysis_user_list" model="ir.ui.view">
+        <field name="name">chat.analysis.user.list</field>
         <field name="model">chat.analysis.user</field>
         <field name="arch" type="xml">
             <list>
@@ -27,6 +27,11 @@
                             <div class="o_stat_info">
                                 <field name="message_count" widget="statinfo"/>
                                 <span class="o_stat_text">Messages</span>
+                            </div>
+                        </button>
+                        <button name="action_sync_user_data" type="object" class="oe_stat_button" icon="fa-refresh">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Sync User</span>
                             </div>
                         </button>
                     </div>
@@ -65,9 +70,9 @@
         </field>
     </record>
 
-    <!-- Chat Tree View -->
-    <record id="view_chat_analysis_chat_tree" model="ir.ui.view">
-        <field name="name">chat.analysis.chat.tree</field>
+    <!-- Chat List View -->
+    <record id="view_chat_analysis_chat_list" model="ir.ui.view">
+        <field name="name">chat.analysis.chat.list</field>
         <field name="model">chat.analysis.chat</field>
         <field name="arch" type="xml">
             <list>
@@ -80,7 +85,7 @@
         </field>
     </record>
 
-    <!-- Chat Form View -->
+    <!-- Chat Form View with multiple API buttons -->
     <record id="view_chat_analysis_chat_form" model="ir.ui.view">
         <field name="name">chat.analysis.chat.form</field>
         <field name="model">chat.analysis.chat</field>
@@ -88,14 +93,28 @@
             <form>
                 <header>
                     <button name="action_sync_messages" type="object" string="Sync Messages" class="btn-primary"/>
+                    <button name="action_sync_all_messages" type="object" string="Sync All Pages" class="btn-secondary"/>
                     <button name="action_refresh_stats" type="object" string="Refresh Stats"/>
                     <field name="active" widget="boolean_toggle"/>
                 </header>
                 <sheet>
-                    <div class="oe_button_box">
-                        <button name="%(action_chat_analysis_wizard)d" type="action" class="oe_stat_button" icon="fa-search">
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_analyze_chat" type="object"
+                                class="oe_stat_button" icon="fa-search">
                             <div class="o_stat_info">
                                 <span class="o_stat_text">Analyze</span>
+                            </div>
+                        </button>
+                        <button name="action_check_compliance_quick" type="object"
+                                class="oe_stat_button" icon="fa-check-circle">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Quick Compliance</span>
+                            </div>
+                        </button>
+                        <button name="action_export_chat_data" type="object"
+                                class="oe_stat_button" icon="fa-download">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Export Data</span>
                             </div>
                         </button>
                     </div>
@@ -141,9 +160,54 @@
         </field>
     </record>
 
-    <!-- Report Tree View -->
-    <record id="view_chat_analysis_report_tree" model="ir.ui.view">
-        <field name="name">chat.analysis.report.tree</field>
+    <!-- Messages List View -->
+    <record id="view_chat_analysis_message_list" model="ir.ui.view">
+        <field name="name">chat.analysis.message.list</field>
+        <field name="model">chat.analysis.message</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="display_name"/>
+                <field name="sender_name"/>
+                <field name="timestamp"/>
+                <field name="chat_id"/>
+                <field name="user_id"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Messages Form View -->
+    <record id="view_chat_analysis_message_form" model="ir.ui.view">
+        <field name="name">chat.analysis.message.form</field>
+        <field name="model">chat.analysis.message</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="display_name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="sender_name"/>
+                            <field name="user_id"/>
+                            <field name="chat_id"/>
+                        </group>
+                        <group>
+                            <field name="timestamp"/>
+                            <field name="message_id"/>
+                            <field name="external_id"/>
+                        </group>
+                    </group>
+                    <field name="content" nolabel="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Report List View -->
+    <record id="view_chat_analysis_report_list" model="ir.ui.view">
+        <field name="name">chat.analysis.report.list</field>
         <field name="model">chat.analysis.report</field>
         <field name="arch" type="xml">
             <list>
@@ -172,9 +236,25 @@
                             class="btn-primary"
                             invisible="[('state', '!=', 'draft'), ('analysis_type', '!=', 'compliance')]"/>
 
+                    <button name="action_retry_failed" type="object" string="Retry"
+                            class="btn-warning"
+                            invisible="[('state', '!=', 'error')]"/>
+
                     <field name="state" widget="badge"/>
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_chart" type="object" class="oe_stat_button" icon="fa-line-chart">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Analytics</span>
+                            </div>
+                        </button>
+                        <button name="action_export_report" type="object" class="oe_stat_button" icon="fa-download">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Export</span>
+                            </div>
+                        </button>
+                    </div>
                     <div class="oe_title">
                         <h1>
                             <field name="display_name"/>
@@ -215,6 +295,73 @@
                         <field name="violations" nolabel="1"/>
                         <field name="suggestions" nolabel="1"/>
                     </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Ticket List View -->
+    <record id="view_chat_analysis_ticket_list" model="ir.ui.view">
+        <field name="name">chat.analysis.ticket.list</field>
+        <field name="model">chat.analysis.ticket</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="chat_id"/>
+                <field name="priority" widget="badge"/>
+                <field name="state" widget="badge"/>
+                <field name="assigned_to"/>
+                <field name="create_date"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Ticket Form View -->
+    <record id="view_chat_analysis_ticket_form" model="ir.ui.view">
+        <field name="name">chat.analysis.ticket.form</field>
+        <field name="model">chat.analysis.ticket</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_mark_in_progress" type="object" string="Mark In Progress"
+                            class="btn-primary"
+                            invisible="[('state', '!=', 'new')]"/>
+                    <button name="action_mark_resolved" type="object" string="Resolve"
+                            class="btn-success"
+                            invisible="[('state', '!=', 'new'), ('state', '!=', 'in_progress')]"/>
+                    <button name="action_mark_closed" type="object" string="Close"
+                            class="btn-secondary"
+                            invisible="[('state', '!=', 'resolved')]"/>
+                    <button name="action_reopen" type="object" string="Reopen"
+                            class="btn-warning"
+                            invisible="[('state', 'in', ['new', 'in_progress'])]"/>
+                    <field name="state" widget="badge"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="chat_id"/>
+                            <field name="report_id"/>
+                            <field name="priority"/>
+                        </group>
+                        <group>
+                            <field name="assigned_to"/>
+                            <field name="create_date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description">
+                            <field name="description" nolabel="1"/>
+                        </page>
+                        <page string="Violations">
+                            <field name="violations" nolabel="1"/>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>

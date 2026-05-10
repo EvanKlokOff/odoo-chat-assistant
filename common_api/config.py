@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     api_port: int = Field(default=8000, alias="API_PORT")
     api_reload: bool = Field(default=False, alias="API_RELOAD")
     debug: bool = Field(default=False, alias="DEBUG")
+    api_log_level: str = Field(default="info", alias="API_LOG_LEVEL")
 
     @property
     def api_tokens(self) -> List[str]:

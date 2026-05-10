@@ -112,5 +112,6 @@ if __name__ == "__main__":
         "common_api.main:app",  # исправлен путь
         host=settings.api_host,
         port=settings.api_port,
-        reload=settings.api_reload
+        reload=settings.api_reload,
+        log_level=settings.api_log_level,
     )

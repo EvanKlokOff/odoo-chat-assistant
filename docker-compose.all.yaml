@@ -98,6 +98,38 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # FastAPI сервер
+  chat_api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: chat_api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://analyzer:secure_password@chat_analyzer_postgres:5432/chat_analyzer
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - API_KEYS=odoo_api_key_1
+      - ADMIN_API_KEY=your_admin_api_key
+    depends_on:
+      chat_analyzer_postgres:
+        condition: service_healthy
+      chat_analyzer_redis:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - internal_network
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 networks:
   internal_network:
     driver: bridge

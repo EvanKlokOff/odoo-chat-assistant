@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Users Action with server action buttons -->
     <record id="action_chat_analysis_users" model="ir.actions.act_window">
         <field name="name">Chat Users</field>
         <field name="res_model">chat.analysis.user</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_chat_analysis_user_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_chat_analysis_user_form')})]"/>
+        <field name="context">{'create': False}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No users found. Click "Batch Sync" to load users from API.
@@ -11,10 +16,15 @@
         </field>
     </record>
 
+    <!-- Chats Action -->
     <record id="action_chat_analysis_chats" model="ir.actions.act_window">
         <field name="name">Chats</field>
         <field name="res_model">chat.analysis.chat</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_chat_analysis_chat_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_chat_analysis_chat_form')})]"/>
+        <field name="context">{'create': False}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No chats found. Click "Batch Sync" to load chats from API.
@@ -22,23 +32,55 @@
         </field>
     </record>
 
+    <!-- Reports Action -->
     <record id="action_chat_analysis_reports" model="ir.actions.act_window">
         <field name="name">Analysis Reports</field>
         <field name="res_model">chat.analysis.report</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form,graph,pivot,calendar,activity</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_chat_analysis_report_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_chat_analysis_report_form')}),
+            (0, 0, {'view_mode': 'graph', 'view_id': ref('view_chat_analysis_report_graph')}),
+            (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_chat_analysis_report_pivot')})]"/>
     </record>
 
+    <!-- Messages Action -->
     <record id="action_chat_analysis_messages" model="ir.actions.act_window">
         <field name="name">Messages</field>
         <field name="res_model">chat.analysis.message</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_chat_analysis_message_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_chat_analysis_message_form')})]"/>
+        <field name="context">{'create': False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No messages found. Use "Sync Messages" button on chat form to load messages.
+            </p>
+        </field>
     </record>
 
+    <!-- Tickets Action -->
     <record id="action_chat_analysis_tickets" model="ir.actions.act_window">
         <field name="name">Tickets</field>
         <field name="res_model">chat.analysis.ticket</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_chat_analysis_ticket_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_chat_analysis_ticket_form')})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No tickets found. Tickets are automatically created from compliance violations.
+            </p>
+        </field>
     </record>
+
+    <!-- Batch Sync Menu Item -->
+    <menuitem id="menu_chat_analysis_batch_sync"
+              name="Batch Sync"
+              parent="menu_chat_analysis_configuration"
+              sequence="10"
+              action="action_chat_sync_batch_wizard"/>
 
     <!-- Main Menu -->
     <menuitem id="menu_chat_analysis_root"

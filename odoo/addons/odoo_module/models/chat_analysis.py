@@ -210,6 +210,78 @@ class ChatAnalysisReport(models.Model):
             },
         }
 
+    def action_retry_failed(self):
+        """Повторить失败的 отчёт"""
+        self.ensure_one()
+
+        if self.analysis_type == 'review':
+            return self.action_process_review()
+        else:
+            return self.action_process_compliance()
+
+    def action_export_report(self):
+        """Экспорт отчёта в HTML"""
+        self.ensure_one()
+
+        if self.analysis_type == 'review':
+            content = f"""
+            <html>
+            <head><meta charset="utf-8"><title>Review Report</title></head>
+            <body>
+                <h1>Review Report for {self.chat_id.title}</h1>
+                <p><strong>Date:</strong> {self.create_date}</p>
+                <p><strong>Target Time:</strong> {self.target_datetime}</p>
+                <h2>Summary</h2>
+                <p>{self.summary or 'No summary'}</p>
+                <h2>Sentiment</h2>
+                <p>{self.sentiment or 'Unknown'}</p>
+                <h2>Key Points</h2>
+                <p>{self.key_points or 'No key points'}</p>
+                <h2>Statistics</h2>
+                <ul>
+                    <li>Participants: {self.participant_count}</li>
+                    <li>Messages in window: {self.message_count}</li>
+                    <li>Messages before: {self.message_count_before}</li>
+                    <li>Messages after: {self.message_count_after}</li>
+                </ul>
+            </body>
+            </html>
+            """
+        else:
+            content = f"""
+            <html>
+            <head><meta charset="utf-8"><title>Compliance Report</title></head>
+            <body>
+                <h1>Compliance Report for {self.chat_id.title}</h1>
+                <p><strong>Date:</strong> {self.create_date}</p>
+                <p><strong>Target Time:</strong> {self.target_datetime}</p>
+                <h2>Compliance Status</h2>
+                <p><strong>Compliant:</strong> {'Yes' if self.compliant else 'No'}</p>
+                <p><strong>Confidence:</strong> {(self.confidence or 0) * 100:.1f}%</p>
+                <h2>Explanation</h2>
+                <p>{self.explanation or 'No explanation'}</p>
+                <h2>Violations</h2>
+                <p>{self.violations or 'No violations'}</p>
+                <h2>Suggestions</h2>
+                <p>{self.suggestions or 'No suggestions'}</p>
+            </body>
+            </html>
+            """
+
+        attachment = self.env['ir.attachment'].create({
+            'name': f'report_{self.id}.html',
+            'datas': content.encode('utf-8'),
+            'res_model': 'chat.analysis.report',
+            'res_id': self.id,
+            'mimetype': 'text/html',
+        })
+
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content/{attachment.id}?download=true',
+            'target': 'self',
+        }
+
 
 class ChatAnalysisMessage(models.Model):
     _name = 'chat.analysis.message'
@@ -281,3 +353,30 @@ class ChatAnalysisTicket(models.Model):
 
     def action_mark_closed(self):
         self.state = 'closed'
+
+    def action_reopen(self):
+        """Reopen ticket"""
+        self.state = 'in_progress'
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Success'),
+                'message': _('Ticket reopened'),
+                'type': 'success',
+            }
+        }
+
+    def _check_api_connection(self):
+        """Проверка подключения к API"""
+        try:
+            api_url = self._get_api_url()
+            response = requests.get(
+                f"{api_url.replace('/api/v1', '')}/health",
+                headers=self._get_headers(),
+                timeout=5
+            )
+            return response.status_code == 200
+        except:
+            return False

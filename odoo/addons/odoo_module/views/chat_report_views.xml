@@ -23,7 +23,9 @@
                                 <div class="card-box bg-primary text-white">
                                     <div class="media">
                                         <div class="media-body">
-                                            <h3 class="mb-1"><field name="chat_count"/></h3>
+                                            <h3 class="mb-1">
+                                                <field name="chat_count"/>
+                                            </h3>
                                             <p class="mb-0">Total Chats</p>
                                         </div>
                                         <div class="align-self-center">
@@ -36,7 +38,9 @@
                                 <div class="card-box bg-info text-white">
                                     <div class="media">
                                         <div class="media-body">
-                                            <h3 class="mb-1"><field name="user_count"/></h3>
+                                            <h3 class="mb-1">
+                                                <field name="user_count"/>
+                                            </h3>
                                             <p class="mb-0">Total Users</p>
                                         </div>
                                         <div class="align-self-center">
@@ -49,7 +53,9 @@
                                 <div class="card-box bg-success text-white">
                                     <div class="media">
                                         <div class="media-body">
-                                            <h3 class="mb-1"><field name="message_count"/></h3>
+                                            <h3 class="mb-1">
+                                                <field name="message_count"/>
+                                            </h3>
                                             <p class="mb-0">Total Messages</p>
                                         </div>
                                         <div class="align-self-center">
@@ -62,7 +68,9 @@
                                 <div class="card-box bg-warning text-white">
                                     <div class="media">
                                         <div class="media-body">
-                                            <h3 class="mb-1"><field name="report_count"/></h3>
+                                            <h3 class="mb-1">
+                                                <field name="report_count"/>
+                                            </h3>
                                             <p class="mb-0">Analysis Reports</p>
                                         </div>
                                         <div class="align-self-center">
@@ -80,13 +88,17 @@
                                         <div class="col-6">
                                             <div class="text-center">
                                                 <p class="text-muted mb-1">Compliant</p>
-                                                <h3 class="text-success"><field name="compliant_count"/></h3>
+                                                <h3 class="text-success">
+                                                    <field name="compliant_count"/>
+                                                </h3>
                                             </div>
                                         </div>
                                         <div class="col-6">
                                             <div class="text-center">
                                                 <p class="text-muted mb-1">Non-Compliant</p>
-                                                <h3 class="text-danger"><field name="non_compliant_count"/></h3>
+                                                <h3 class="text-danger">
+                                                    <field name="non_compliant_count"/>
+                                                </h3>
                                             </div>
                                         </div>
                                     </div>
@@ -143,7 +155,7 @@
               sequence="5"
               action="action_chat_analysis_dashboard"/>
 
-    <!-- Report Statistics View (для просмотра в chat form) -->
+    <!-- Report Statistics View -->
     <record id="view_chat_analysis_report_statistics" model="ir.ui.view">
         <field name="name">chat.analysis.report.statistics</field>
         <field name="model">chat.analysis.report</field>
@@ -161,7 +173,7 @@
         </field>
     </record>
 
-    <!-- Chart View для отчётов -->
+    <!-- Chart View -->
     <record id="view_chat_analysis_report_graph" model="ir.ui.view">
         <field name="name">chat.analysis.report.graph</field>
         <field name="model">chat.analysis.report</field>
@@ -217,51 +229,47 @@
         </field>
     </record>
 
-    <!-- Search View для Reports -->
-<record id="view_chat_analysis_report_search" model="ir.ui.view">
-    <field name="name">chat.analysis.report.search</field>
-    <field name="model">chat.analysis.report</field>
-    <field name="arch" type="xml">
-        <search string="Search Reports">
-            <!-- Поля для поиска -->
-            <field name="display_name"/>
-            <field name="chat_id"/>
-            <field name="analysis_type"/>
-            <field name="state"/>
-            <field name="compliant"/>
+    <!-- Search View -->
+    <record id="view_chat_analysis_report_search" model="ir.ui.view">
+        <field name="name">chat.analysis.report.search</field>
+        <field name="model">chat.analysis.report</field>
+        <field name="arch" type="xml">
+            <search string="Search Reports">
+                <field name="display_name"/>
+                <field name="chat_id"/>
+                <field name="analysis_type"/>
+                <field name="state"/>
+                <field name="compliant"/>
 
-            <!-- Фильтры по статусу -->
-            <separator/>
-            <filter name="compliant" string="Compliant" domain="[('compliant', '=', True)]"/>
-            <filter name="non_compliant" string="Non-Compliant" domain="[('compliant', '=', False)]"/>
-            <filter name="review" string="Reviews" domain="[('analysis_type', '=', 'review')]"/>
-            <filter name="compliance" string="Compliance Checks" domain="[('analysis_type', '=', 'compliance')]"/>
+                <separator/>
+                <filter name="compliant" string="Compliant" domain="[('compliant', '=', True)]"/>
+                <filter name="non_compliant" string="Non-Compliant" domain="[('compliant', '=', False)]"/>
+                <filter name="review" string="Reviews" domain="[('analysis_type', '=', 'review')]"/>
+                <filter name="compliance" string="Compliance Checks" domain="[('analysis_type', '=', 'compliance')]"/>
 
-            <!-- Фильтры по дате (синтаксис Odoo 18) -->
-            <separator/>
-            <filter name="today" string="Today" date="create_date"/>
-            <filter name="last_7_days" string="Last 7 Days" date="create_date"/>
-            <filter name="last_30_days" string="Last 30 Days" date="create_date"/>
-            <filter name="this_month" string="This Month" date="create_date"/>
+                <separator/>
+                <filter name="today" string="Today" date="create_date"/>
+                <filter name="last_7_days" string="Last 7 Days" date="create_date"/>
+                <filter name="last_30_days" string="Last 30 Days" date="create_date"/>
+                <filter name="this_month" string="This Month" date="create_date"/>
 
-            <!-- Группировка -->
-            <separator/>
-            <group expand="0" string="Group By">
-                <filter name="group_by_chat" string="Chat" context="{'group_by': 'chat_id'}"/>
-                <filter name="group_by_type" string="Type" context="{'group_by': 'analysis_type'}"/>
-                <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
-                <filter name="group_by_compliant" string="Compliant" context="{'group_by': 'compliant'}"/>
-                <filter name="group_by_date" string="Date" context="{'group_by': 'create_date:day'}"/>
-            </group>
-        </search>
-    </field>
-</record>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_chat" string="Chat" context="{'group_by': 'chat_id'}"/>
+                    <filter name="group_by_type" string="Type" context="{'group_by': 'analysis_type'}"/>
+                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_compliant" string="Compliant" context="{'group_by': 'compliant'}"/>
+                    <filter name="group_by_date" string="Date" context="{'group_by': 'create_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
 
-    <!-- Обновление action для reports с новыми view -->
+    <!-- Update reports action -->
     <record id="action_chat_analysis_reports" model="ir.actions.act_window">
         <field name="name">Analysis Reports</field>
         <field name="res_model">chat.analysis.report</field>
-        <field name="view_mode">tree,form,graph,pivot,calendar,activity</field>
+        <field name="view_mode">list,form,graph,pivot,calendar,activity</field>
         <field name="search_view_id" ref="view_chat_analysis_report_search"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
@@ -270,74 +278,7 @@
         </field>
     </record>
 
-    <!-- Ticket Views -->
-    <record id="view_chat_analysis_ticket_tree" model="ir.ui.view">
-        <field name="name">chat.analysis.ticket.tree</field>
-        <field name="model">chat.analysis.ticket</field>
-        <field name="arch" type="xml">
-            <list>
-                <field name="name"/>
-                <field name="chat_id"/>
-                <field name="priority" widget="badge"
-                       decoration-danger="[('priority', '=', 'high')]"
-                       decoration-warning="[('priority', '=', 'urgent')]"/>
-                <field name="state" widget="badge"/>
-                <field name="assigned_to"/>
-                <field name="create_date"/>
-            </list>
-        </field>
-    </record>
-
-    <record id="view_chat_analysis_ticket_form" model="ir.ui.view">
-        <field name="name">chat.analysis.ticket.form</field>
-        <field name="model">chat.analysis.ticket</field>
-        <field name="arch" type="xml">
-            <form>
-                <header>
-                    <button name="action_mark_in_progress" type="object" string="Mark In Progress"
-                            class="btn-primary"
-                            invisible="[('state', '!=', 'new')]"/>
-
-                    <button name="action_mark_resolved" type="object" string="Resolve"
-                            class="btn-success"
-                            invisible="[('state', '!=', 'new'), ('state', '!=', 'in_progress')]"/>
-
-                    <button name="action_mark_closed" type="object" string="Close"
-                            class="btn-secondary"
-                            invisible="[('state', '!=', 'resolved')]"/>
-
-                    <field name="state" widget="badge"/>
-                </header>
-                <sheet>
-                    <div class="oe_title">
-                        <h1>
-                            <field name="name"/>
-                        </h1>
-                    </div>
-                    <group>
-                        <group>
-                            <field name="chat_id"/>
-                            <field name="report_id"/>
-                            <field name="priority"/>
-                        </group>
-                        <group>
-                            <field name="assigned_to"/>
-                            <field name="create_date"/>
-                        </group>
-                    </group>
-                    <notebook>
-                        <page string="Description">
-                            <field name="description" nolabel="1"/>
-                        </page>
-                        <page string="Violations">
-                            <field name="violations" nolabel="1"/>
-                        </page>
-                    </notebook>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
+        <!-- Ticket Search View -->
     <record id="view_chat_analysis_ticket_search" model="ir.ui.view">
         <field name="name">chat.analysis.ticket.search</field>
         <field name="model">chat.analysis.ticket</field>
@@ -356,17 +297,6 @@
         </field>
     </record>
 
-    <record id="action_chat_analysis_tickets" model="ir.actions.act_window">
-        <field name="name">Tickets</field>
-        <field name="res_model">chat.analysis.ticket</field>
-        <field name="view_mode">tree,form</field>
-        <field name="search_view_id" ref="view_chat_analysis_ticket_search"/>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                No tickets found. Tickets are automatically created from compliance violations.
-            </p>
-        </field>
-    </record>
 
     <!-- Update menu sequence -->
     <menuitem id="menu_chat_analysis_reports"

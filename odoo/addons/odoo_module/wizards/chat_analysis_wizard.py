@@ -62,7 +62,7 @@ class ChatAnalysisWizard(models.TransientModel):
 
     def _get_api_url(self):
         config = self.env['ir.config_parameter'].sudo()
-        base_url = config.get_param('chat_analysis.api_url', 'http://localhost:8000')
+        base_url = config.get_param('chat_analysis.api_url', 'http://chat_api:8000')
         return base_url.rstrip('/') + '/api/v1'
 
     def _get_headers(self):
@@ -89,7 +89,7 @@ class ChatSyncBatchWizard(models.TransientModel):
         """Выполнить пакетную синхронизацию"""
         try:
             config = self.env['ir.config_parameter'].sudo()
-            api_url = config.get_param('chat_analysis.api_url', 'http://localhost:8000').rstrip('/') + '/api/v1'
+            api_url = config.get_param('chat_analysis.api_url', 'http://chat_api:8000').rstrip('/') + '/api/v1'
             api_key = config.get_param('chat_analysis.api_key', '')
             headers = {'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'}
 

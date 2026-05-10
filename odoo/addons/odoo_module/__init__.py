@@ -1,5 +1,6 @@
 from . import models
 from . import wizards
+from . import controllers
 
 def post_init_hook(env): # В Odoo 18 передается только env
     """Post-install hook to add access rights"""

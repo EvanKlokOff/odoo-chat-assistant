@@ -49,6 +49,43 @@ class ChatAnalysisUser(models.Model):
             'context': {'default_user_id': self.id},
         }
 
+    def action_sync_user_data(self):
+        """Синхронизировать данные пользователя"""
+        self.ensure_one()
+
+        try:
+            config = self.env['ir.config_parameter'].sudo()
+            api_url = config.get_param('chat_analysis.api_url', 'http://localhost:8000').rstrip('/') + '/api/v1'
+            api_key = config.get_param('chat_analysis.api_key', '')
+            headers = {'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'}
+
+            response = requests.get(
+                f"{api_url}/users/{self.external_id}",
+                headers=headers, timeout=30
+            )
+
+            if response.status_code == 200:
+                user_data = response.json()
+                self.write({
+                    'user_name': user_data.get('user_name', self.user_name),
+                    'telegram_id': user_data.get('telegram_id', self.telegram_id),
+                })
+
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': _('Success'),
+                        'message': _('User data synchronized'),
+                        'type': 'success',
+                    }
+                }
+            else:
+                raise UserError(f"API Error: {response.text}")
+
+        except Exception as e:
+            raise UserError(f"Sync failed: {str(e)}")
+
 
 class ChatAnalysisChat(models.Model):
     _name = 'chat.analysis.chat'
@@ -151,4 +188,118 @@ class ChatAnalysisChat(models.Model):
                 'message': _('Statistics updated'),
                 'type': 'success',
             }
+        }
+
+    def action_analyze_chat(self):
+        """Открыть wizard для анализа чата"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Analyze Chat',
+            'res_model': 'chat.analysis.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_chat_id': self.id,
+                'default_target_datetime': fields.Datetime.now(),
+            }
+        }
+
+
+    def action_sync_all_messages(self):
+        """Синхронизировать все страницы сообщений чата"""
+        self.ensure_one()
+
+        try:
+            config = self.env['ir.config_parameter'].sudo()
+            api_url = config.get_param('chat_analysis.api_url', 'http://localhost:8000').rstrip('/') + '/api/v1'
+            api_key = config.get_param('chat_analysis.api_key', '')
+            headers = {'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'}
+
+            page = 1
+            total_synced = 0
+
+            while True:
+                response = requests.get(
+                    f"{api_url}/chats/{self.external_id}/messages?page={page}&per_page=500",
+                    headers=headers, timeout=30
+                )
+
+                if response.status_code != 200:
+                    break
+
+                data = response.json()
+                self._sync_messages(data)
+                total_synced += len(data.get('items', []))
+
+                # Проверяем, есть ли ещё страницы
+                if not data.get('has_next', False):
+                    break
+
+                page += 1
+
+            self._compute_message_count()
+
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Success'),
+                    'message': _(f'Synchronized {total_synced} messages from {page} pages'),
+                    'type': 'success',
+                    'sticky': False,
+                }
+            }
+        except Exception as e:
+            raise UserError(f"Sync failed: {str(e)}")
+
+    def action_check_compliance_quick(self):
+        """Быстрая проверка соответствия (создаёт отчёт и запускает)"""
+        self.ensure_one()
+
+        # Создаём wizard и сразу запускаем compliance
+        wizard = self.env['chat.analysis.wizard'].create({
+            'chat_id': self.id,
+            'target_datetime': fields.Datetime.now(),
+            'lookback_minutes': 60,
+            'lookforward_minutes': 60,
+            'instruction': 'Проверить соответствие переписки правилам сервиса'
+        })
+
+        return wizard.action_compliance()
+
+    def action_export_chat_data(self):
+        """Экспорт данных чата в JSON"""
+        self.ensure_one()
+
+        messages = self.env['chat.analysis.message'].search([
+            ('chat_id', '=', self.id)
+        ], order='timestamp')
+
+        export_data = {
+            'chat_title': self.title,
+            'chat_id': self.external_id,
+            'total_messages': len(messages),
+            'export_date': fields.Datetime.now().isoformat(),
+            'messages': [{
+                'id': msg.message_id,
+                'sender': msg.sender_name,
+                'timestamp': msg.timestamp.isoformat() if msg.timestamp else None,
+                'content': msg.content,
+            } for msg in messages]
+        }
+
+        # Создаём attachment
+        attachment = self.env['ir.attachment'].create({
+            'name': f'chat_{self.id}_export.json',
+            'datas': json.dumps(export_data, ensure_ascii=False, indent=2).encode('utf-8'),
+            'res_model': 'chat.analysis.chat',
+            'res_id': self.id,
+            'mimetype': 'application/json',
+        })
+
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content/{attachment.id}?download=true',
+            'target': 'self',
         }
