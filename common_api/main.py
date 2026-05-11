@@ -1,4 +1,6 @@
 # common_api/main.py
+import sys
+
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -8,6 +10,20 @@ from datetime import datetime
 from common_api.routers import users, chats, messages, analysis, sync
 from common_api.utils import verify_api_key
 from common_api.config import settings
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.StreamHandler(sys.stderr)
+    ]
+)
+
+# Установить уровень для всех логгеров
+logging.getLogger("common_api").setLevel(logging.INFO)
+logging.getLogger("src").setLevel(logging.INFO)
+
 
 logger = logging.getLogger(__name__)
 

@@ -1,0 +1,57 @@
+# Dockerfile.worker
+FROM --platform=linux/arm64 python:3.11-slim
+
+WORKDIR /app
+
+# Установка системных зависимостей
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    curl \
+    libopenblas-dev \
+    libpq-dev \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+# Копирование requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Установка дополнительных пакетов для Celery
+RUN pip install --no-cache-dir \
+    gevent \
+    hiredis \
+    numpy \
+    psycopg2-binary \
+    redis \
+    celery[redis] \
+    redbeat \
+    flower \
+    httpx \
+    asyncpg
+
+# Копирование всего проекта
+COPY . .
+
+# Делаем скрипт исполняемым
+RUN chmod +x /app/run-celery.sh
+
+# Создание директорий
+RUN mkdir -p logs models_cache
+
+# Переменные окружения
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# Оптимизации для ARM64
+ENV OMP_NUM_THREADS=4
+ENV MKL_NUM_THREADS=4
+ENV OPENBLAS_NUM_THREADS=4
+
+# Healthcheck для воркера
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD celery -A src.tasks.celery_app inspect ping || exit 1
+
+# Скрипт run-celery.sh будет использоваться как entrypoint
+ENTRYPOINT ["/app/run-celery.sh"]
+CMD ["worker"]

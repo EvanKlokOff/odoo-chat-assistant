@@ -145,13 +145,13 @@ class Phi4MiniProvider(OllamaProvider):
             model=model,
             base_url=base_url,
             temperature=temperature,
-            num_ctx=8192,  # 8K контекста
-            num_predict=4096,  # Максимальный ответ
-            top_k=50,
-            top_p=0.95,
+            num_ctx=4096,  # 8K контекста
+            num_predict=2048,  # Максимальный ответ
+            top_k=40,
+            top_p=0.9,
             repeat_penalty=1.1,
             flash_attention=True,
-            kv_cache_type="q8_0",
+            #kv_cache_type="q8_0",
             **kwargs
         )
         logger.info(f"Initialized Phi-4 Mini with optimized settings (ctx=8192)")

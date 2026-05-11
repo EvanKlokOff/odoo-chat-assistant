@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
     bind=True,
     max_retries=2,
     default_retry_delay=30,
-    time_limit=300,
-    soft_time_limit=280
+    time_limit=600,  # 5 минут на анализ
+    soft_time_limit=540
 )
 @async_celery_task_bind()
 async def run_compliance_analysis(
@@ -112,8 +112,8 @@ async def run_compliance_analysis(
     name="run_review_analysis",
     queue="analysis",  # Новая очередь для анализа
     bind=True,
-    time_limit=300,  # 5 минут на анализ
-    soft_time_limit=280
+    time_limit=600,  # 5 минут на анализ
+    soft_time_limit=540
 )
 @async_celery_task_bind(max_retries=3, default_retry_delay=60)
 async def run_review_analysis(

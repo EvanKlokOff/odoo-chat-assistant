@@ -13,6 +13,8 @@ def post_init_hook(env): # В Odoo 18 передается только env
         ('chat.analysis.ticket', 'base.group_user', 1, 1, 1, 1),
         ('chat.analysis.wizard', 'base.group_user', 1, 1, 1, 1),
         ('chat.sync.batch.wizard', 'base.group_user', 1, 1, 1, 1),
+        ('chat.analysis.dashboard', 'base.group_user', 1, 1, 1, 1),
+        ('chat.analysis.statistics', 'base.group_user', 1, 1, 1, 1),
     ]
 
     for model_name, group_id, perm_read, perm_write, perm_create, perm_unlink in models_to_configure:

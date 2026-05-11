@@ -113,7 +113,7 @@ async def generate_review(state: AgentState) -> AgentState:
         return state
 
     messages_text = "\n".join([
-        f"[{m['timestamp']}] {m['sender_name']}: {m['content']}"
+        f"[{m['timestamp']}] {m['sender_name']}: {m['content'][:500]}"
         for m in state["chat_messages"]
     ])
 
@@ -137,7 +137,7 @@ async def generate_review(state: AgentState) -> AgentState:
 
 
 Анализируемые сообщения:
-{messages_text[:8000]}
+{messages_text[:4000]}
 
 ## Требуемый формат ответа:
 

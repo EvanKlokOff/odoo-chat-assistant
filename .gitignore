@@ -9,3 +9,5 @@
 /logs/embeddings_worker.log
 /logs/fast_worker.log
 /.idea/*
+/.env.docker
+/.env.local

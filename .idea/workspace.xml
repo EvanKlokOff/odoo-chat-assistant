@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="55a1370a-10e4-4600-8281-b944b6da5411" name="Changes" comment="Добавлена рабочая версия одоо модуля с поддержкой синхронизации пользователей и чатов">
-      <change afterPath="$PROJECT_DIR$/common_api/enums.py" afterDir="false" />
+    <list default="true" id="55a1370a-10e4-4600-8281-b944b6da5411" name="Changes" comment="Добавление рабочей синхронизации чатов и пользователей + связей между ними">
+      <change afterPath="$PROJECT_DIR$/Dockerfile.ollama" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Dockerfile.worker" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common_api/routers/utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ollama_init.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/odoo-chat-assistant.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/odoo-chat-assistant.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile.api" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile.api" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common_api/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/common_api/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common_api/routers/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/common_api/routers/analysis.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common_api/schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/common_api/schemas.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common_api/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/common_api/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common_api/tests/conftest.py" beforeDir="false" afterPath="$PROJECT_DIR$/common_api/tests/conftest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common_api/tests/test_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/common_api/tests/test_analysis.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.all.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.all.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/models/chat_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/chat_analysis.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/models/chat_user.py" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/chat_user.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_analysis_views.xml" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_analysis_views.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_settings_views.xml" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_settings_views.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_report_views.xml" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_report_views.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/wizards/chat_analysis_wizard.py" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/wizards/chat_analysis_wizard.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/wizards/chat_analysis_wizard_view.xml" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/wizards/chat_analysis_wizard_view.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.api.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/analyzers/nodes.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/analyzers/nodes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/llm/providers.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/llm/providers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tasks/analysis_tasks.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tasks/analysis_tasks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tasks/monitor_tasks.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tasks/monitor_tasks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tasks/worker_startup.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tasks/worker_startup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/conftest.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/conftest.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,67 +73,81 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python tests.Python tests for tests.test_analyzers.TestReviewGeneration.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests for tests.test_analyzers.TestReviewGeneration.test_generate_review_with_messages.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests for tests.test_analyzers.test_generate_review_empty_messages.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests for tests.test_analyzers.test_generate_review_with_messages.executor&quot;: &quot;Debug&quot;,
-    &quot;Python tests.Python tests for tests.test_embedings.test_embedding_consistency.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests for tests.test_embedings.test_embedding_similarity.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests for tests.test_embedings.test_semantic_search.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests for tests.test_integration.test_full_compliance_pipeline.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests for tests.test_integration.test_full_review_pipeline.executor&quot;: &quot;Debug&quot;,
-    &quot;Python tests.Python tests for tests.test_integration.test_real_embeddings_search.executor&quot;: &quot;Debug&quot;,
-    &quot;Python tests.Python tests for tests.test_integration.test_real_llm_review.executor&quot;: &quot;Debug&quot;,
-    &quot;Python tests.Python tests for tests.test_llm_providers.test_chat.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests for tests.test_llm_providers.test_gemma3_analysis.executor&quot;: &quot;Debug&quot;,
-    &quot;Python tests.Python tests for tests.test_llm_providers.test_gemma3_response.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests for tests.test_llm_providers.test_generate_response.executor&quot;: &quot;Debug&quot;,
-    &quot;Python tests.Python tests for tests.test_llm_providers.test_generate_with_system_prompt.executor&quot;: &quot;Debug&quot;,
-    &quot;Python tests.Python tests for tests.test_llm_providers.test_generate_with_template.executor&quot;: &quot;Debug&quot;,
-    &quot;Python tests.pytest for common_api.routers.messages.TestMessagesAPI.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.pytest for common_api.tests.test_analysis.TestAnalysisAPI.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.pytest for common_api.tests.test_chats.TestChatsAPI.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.pytest for common_api.tests.test_messages.TestMessagesAPI.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.pytest for common_api.tests.test_sync.TestSyncAPI.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.pytest for common_api.tests.test_sync.TestSyncAPI.test_get_changes_with_limit.executor&quot;: &quot;Debug&quot;,
-    &quot;Python tests.pytest for common_api.tests.test_users.TestUsersAPI.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_chats.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_detail_not_found.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_detail_success.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_messages.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_messages_pagination.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_users_success.executor&quot;: &quot;Debug&quot;,
-    &quot;Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_users_with_search.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_unauthorized_access.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.pytest for tests.test_message_handling.test_handle_new_message_success.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;database.data.extractors.current.export.id&quot;: &quot;Comma-separated (CSV)_id&quot;,
-    &quot;database.data.extractors.current.id&quot;: &quot;Comma-separated (CSV)_id&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;git.auto.fetch.suggestion.counter&quot;: &quot;2&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/user/PycharmProjects/odoo-chat-assistant/odoo_module/static/description&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;vcs.Git&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python tests.Python tests for tests.test_analyzers.TestReviewGeneration.executor": "Run",
+    "Python tests.Python tests for tests.test_analyzers.TestReviewGeneration.test_generate_review_with_messages.executor": "Run",
+    "Python tests.Python tests for tests.test_analyzers.test_generate_review_empty_messages.executor": "Run",
+    "Python tests.Python tests for tests.test_analyzers.test_generate_review_with_messages.executor": "Debug",
+    "Python tests.Python tests for tests.test_embedings.test_embedding_consistency.executor": "Run",
+    "Python tests.Python tests for tests.test_embedings.test_embedding_similarity.executor": "Run",
+    "Python tests.Python tests for tests.test_embedings.test_semantic_search.executor": "Run",
+    "Python tests.Python tests for tests.test_integration.test_full_compliance_pipeline.executor": "Run",
+    "Python tests.Python tests for tests.test_integration.test_full_review_pipeline.executor": "Debug",
+    "Python tests.Python tests for tests.test_integration.test_real_embeddings_search.executor": "Debug",
+    "Python tests.Python tests for tests.test_integration.test_real_llm_review.executor": "Debug",
+    "Python tests.Python tests for tests.test_llm_providers.test_chat.executor": "Run",
+    "Python tests.Python tests for tests.test_llm_providers.test_gemma3_analysis.executor": "Debug",
+    "Python tests.Python tests for tests.test_llm_providers.test_gemma3_response.executor": "Run",
+    "Python tests.Python tests for tests.test_llm_providers.test_generate_response.executor": "Debug",
+    "Python tests.Python tests for tests.test_llm_providers.test_generate_with_system_prompt.executor": "Debug",
+    "Python tests.Python tests for tests.test_llm_providers.test_generate_with_template.executor": "Debug",
+    "Python tests.pytest for common_api.routers.messages.TestMessagesAPI.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_analysis.TestAnalysisAPI.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_analysis.test_compliance_by_period_invalid_instruction_too_short.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_analysis.test_compliance_by_period_missing_instruction.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_analysis.test_compliance_by_period_success.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_analysis.test_compliance_by_period_with_same_dates.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_analysis.test_get_task_status_not_found.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_analysis.test_review_by_period_invalid_api_key.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_analysis.test_review_by_period_invalid_dates.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_analysis.test_review_by_period_missing_chat_id.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_analysis.test_review_by_period_missing_user_id.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_analysis.test_review_by_period_negative_user_id.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_analysis.test_review_by_period_success.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_analysis.test_review_by_period_unauthorized.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_analysis.test_review_by_period_with_same_dates.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_chats.TestChatsAPI.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_messages.TestMessagesAPI.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_sync.TestSyncAPI.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_sync.TestSyncAPI.test_get_changes_with_limit.executor": "Debug",
+    "Python tests.pytest for common_api.tests.test_users.TestUsersAPI.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_chats.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_detail_not_found.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_detail_success.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_messages.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_user_messages_pagination.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_users_success.executor": "Debug",
+    "Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_get_users_with_search.executor": "Run",
+    "Python tests.pytest for common_api.tests.test_users.TestUsersAPI.test_unauthorized_access.executor": "Run",
+    "Python tests.pytest for tests.test_analyzers.test_review_by_period_success.executor": "Run",
+    "Python tests.pytest for tests.test_message_handling.test_handle_new_message_success.executor": "Debug",
+    "Python.main.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "database.data.extractors.current.export.id": "Comma-separated (CSV)_id",
+    "database.data.extractors.current.id": "Comma-separated (CSV)_id",
+    "git-widget-placeholder": "main",
+    "git.auto.fetch.suggestion.counter": "2",
+    "last_opened_file_path": "/Users/user/PycharmProjects/odoo-chat-assistant/odoo_module/static/description",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "vcs.Git",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/odoo_module/static/description" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/common_api" />
       <recent name="$PROJECT_DIR$/odoo/addons/odoo_module/views" />
       <recent name="$PROJECT_DIR$/odoo/addons" />
       <recent name="$PROJECT_DIR$/odoo_module/wizards" />
-      <recent name="$PROJECT_DIR$/src/cache" />
     </key>
   </component>
   <component name="RunManager" selected="Python.main">
@@ -141,7 +176,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="pytest for common_api.tests.test_analysis.TestAnalysisAPI" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+    <configuration name="pytest for common_api.tests.test_analysis.test_compliance_by_period_with_same_dates" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="odoo-chat-assistant" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -152,16 +187,15 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="DEBUG_JUST_MY_CODE" value="false" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="RUN_TOOL" value="" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_parameters" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;common_api.tests.test_analysis.TestAnalysisAPI&quot;" />
+      <option name="_new_target" value="&quot;common_api.tests.test_analysis.test_compliance_by_period_with_same_dates&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="pytest for common_api.tests.test_chats.TestChatsAPI" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+    <configuration name="pytest for common_api.tests.test_analysis.test_review_by_period_invalid_api_key" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="odoo-chat-assistant" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -172,16 +206,15 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="DEBUG_JUST_MY_CODE" value="false" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="RUN_TOOL" value="" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_parameters" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;common_api.tests.test_chats.TestChatsAPI&quot;" />
+      <option name="_new_target" value="&quot;common_api.tests.test_analysis.test_review_by_period_invalid_api_key&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="pytest for common_api.tests.test_messages.TestMessagesAPI" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+    <configuration name="pytest for common_api.tests.test_analysis.test_review_by_period_negative_user_id" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="odoo-chat-assistant" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -192,16 +225,15 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="DEBUG_JUST_MY_CODE" value="false" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="RUN_TOOL" value="" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_parameters" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;common_api.tests.test_messages.TestMessagesAPI&quot;" />
+      <option name="_new_target" value="&quot;common_api.tests.test_analysis.test_review_by_period_negative_user_id&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="pytest for common_api.tests.test_sync.TestSyncAPI" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+    <configuration name="pytest for common_api.tests.test_analysis.test_review_by_period_unauthorized" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="odoo-chat-assistant" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -212,16 +244,15 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="DEBUG_JUST_MY_CODE" value="false" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="RUN_TOOL" value="" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_parameters" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;common_api.tests.test_sync.TestSyncAPI&quot;" />
+      <option name="_new_target" value="&quot;common_api.tests.test_analysis.test_review_by_period_unauthorized&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="pytest for common_api.tests.test_users.TestUsersAPI" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+    <configuration name="pytest for common_api.tests.test_analysis.test_review_by_period_with_same_dates" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="odoo-chat-assistant" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -232,30 +263,29 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="DEBUG_JUST_MY_CODE" value="false" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="RUN_TOOL" value="" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_parameters" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;common_api.tests.test_users.TestUsersAPI&quot;" />
+      <option name="_new_target" value="&quot;common_api.tests.test_analysis.test_review_by_period_with_same_dates&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
     <list>
       <item itemvalue="Python.main" />
-      <item itemvalue="Python tests.pytest for common_api.tests.test_analysis.TestAnalysisAPI" />
-      <item itemvalue="Python tests.pytest for common_api.tests.test_chats.TestChatsAPI" />
-      <item itemvalue="Python tests.pytest for common_api.tests.test_messages.TestMessagesAPI" />
-      <item itemvalue="Python tests.pytest for common_api.tests.test_sync.TestSyncAPI" />
-      <item itemvalue="Python tests.pytest for common_api.tests.test_users.TestUsersAPI" />
+      <item itemvalue="Python tests.pytest for common_api.tests.test_analysis.test_compliance_by_period_with_same_dates" />
+      <item itemvalue="Python tests.pytest for common_api.tests.test_analysis.test_review_by_period_invalid_api_key" />
+      <item itemvalue="Python tests.pytest for common_api.tests.test_analysis.test_review_by_period_negative_user_id" />
+      <item itemvalue="Python tests.pytest for common_api.tests.test_analysis.test_review_by_period_unauthorized" />
+      <item itemvalue="Python tests.pytest for common_api.tests.test_analysis.test_review_by_period_with_same_dates" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python tests.pytest for common_api.tests.test_users.TestUsersAPI" />
-        <item itemvalue="Python tests.pytest for common_api.tests.test_sync.TestSyncAPI" />
-        <item itemvalue="Python tests.pytest for common_api.tests.test_messages.TestMessagesAPI" />
-        <item itemvalue="Python tests.pytest for common_api.tests.test_chats.TestChatsAPI" />
-        <item itemvalue="Python tests.pytest for common_api.tests.test_analysis.TestAnalysisAPI" />
+        <item itemvalue="Python tests.pytest for common_api.tests.test_analysis.test_compliance_by_period_with_same_dates" />
+        <item itemvalue="Python tests.pytest for common_api.tests.test_analysis.test_review_by_period_with_same_dates" />
+        <item itemvalue="Python tests.pytest for common_api.tests.test_analysis.test_review_by_period_negative_user_id" />
+        <item itemvalue="Python tests.pytest for common_api.tests.test_analysis.test_review_by_period_invalid_api_key" />
+        <item itemvalue="Python tests.pytest for common_api.tests.test_analysis.test_review_by_period_unauthorized" />
       </list>
     </recent_temporary>
   </component>
@@ -443,7 +473,15 @@
       <option name="project" value="LOCAL" />
       <updated>1778433833103</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Добавление рабочей синхронизации чатов и пользователей + связей между ними">
+      <option name="closed" value="true" />
+      <created>1778437506958</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1778437506958</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -475,17 +513,13 @@
     <MESSAGE value="Добавлен модуль для экранирования текста ответа ллм" />
     <MESSAGE value="Добавлен git_ignore" />
     <MESSAGE value="Добавлена рабочая версия одоо модуля с поддержкой синхронизации пользователей и чатов" />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавлена рабочая версия одоо модуля с поддержкой синхронизации пользователей и чатов" />
+    <MESSAGE value="Добавление рабочей синхронизации чатов и пользователей + связей между ними" />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавление рабочей синхронизации чатов и пользователей + связей между ними" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tests/test_analyzers.py</url>
-          <line>29</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_embedings.py</url>
           <line>67</line>
@@ -526,10 +560,6 @@
           <option name="timeStamp" value="29" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/common_api/routers/users.py</url>
-          <option name="timeStamp" value="30" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/common_api/tests/test_sync.py</url>
           <line>73</line>
           <option name="timeStamp" value="33" />
@@ -548,6 +578,11 @@
           <url>file://$PROJECT_DIR$/common_api/tests/test_messages.py</url>
           <line>146</line>
           <option name="timeStamp" value="38" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/common_api/routers/analysis.py</url>
+          <line>42</line>
+          <option name="timeStamp" value="42" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

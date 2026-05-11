@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 import requests
 import logging
 
@@ -11,67 +11,62 @@ class ChatAnalysisWizard(models.TransientModel):
     _description = 'Chat Analysis Wizard'
 
     chat_id = fields.Many2one('chat.analysis.chat', string='Chat', required=True)
-    target_datetime = fields.Datetime(string='Target Date/Time', required=True, default=fields.Datetime.now)
-    lookback_minutes = fields.Integer(string='Lookback Minutes', default=60)
-    lookforward_minutes = fields.Integer(string='Lookforward Minutes', default=60)
-    instruction = fields.Text(string='Instruction', help='Instruction for compliance check')
+    report_type = fields.Selection([
+        ('review', 'Review'),
+        ('compliance', 'Compliance Check')
+    ], string='Report Type', required=True, default='review')
 
-    def action_review(self):
-        """Выполнить ревью"""
-        report = self.env['chat.analysis.report'].create({
-            'chat_id': self.chat_id.id,
-            'analysis_type': 'review',
-            'target_datetime': self.target_datetime,
-            'lookback_minutes': self.lookback_minutes,
-            'lookforward_minutes': self.lookforward_minutes,
-        })
+    date_start = fields.Datetime(string='Start Date', required=True,
+                                 default=fields.Datetime.now)
+    date_end = fields.Datetime(string='End Date', required=True,
+                               default=fields.Datetime.now)
 
-        report.action_process_review()
+    instruction = fields.Text(string='Instruction',
+                              help='Instruction for compliance check (required for Compliance Check)',
+                              placeholder="Example: All messages must be respectful, professional, and comply with company policies...")
 
-        return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'chat.analysis.report',
-            'res_id': report.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
+    instruction_domain = fields.Char(string='Instruction Domain',
+                                     help='Domain/context of the instruction (e.g., customer support, sales, internal communication)')
 
-    def action_compliance(self):
-        """Выполнить проверку соответствия"""
-        if not self.instruction:
-            raise UserError("Please provide an instruction for compliance check")
+    def action_analyze(self):
+        """Execute analysis based on selected report type"""
+        self.ensure_one()
 
-        report = self.env['chat.analysis.report'].create({
-            'chat_id': self.chat_id.id,
-            'analysis_type': 'compliance',
-            'target_datetime': self.target_datetime,
-            'instruction': self.instruction,
-            'lookback_minutes': self.lookback_minutes,
-            'lookforward_minutes': self.lookforward_minutes,
-        })
+        # Validation
+        if self.date_start >= self.date_end:
+            raise ValidationError("Start date must be before end date")
 
-        report.action_process_compliance()
+        if self.report_type == 'compliance' and not self.instruction:
+            raise ValidationError("Instruction is required for compliance check")
 
-        return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'chat.analysis.report',
-            'res_id': report.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
+        try:
+            # Create report record with period-based fields
+            report = self.env['chat.analysis.report'].create({
+                'chat_id': self.chat_id.id,
+                'analysis_type': self.report_type,
+                'date_start': self.date_start,
+                'date_end': self.date_end,
+                'instruction': self.instruction,
+                'instruction_domain': self.instruction_domain,
+                'state': 'pending',
+                'user_id': self.env.user.id,
+            })
 
-    def _get_api_url(self):
-        config = self.env['ir.config_parameter'].sudo()
-        base_url = config.get_param('chat_analysis.api_url', 'http://chat_api:8000')
-        return base_url.rstrip('/') + '/api/v1'
+            # Trigger async analysis
+            report.action_analyze()
 
-    def _get_headers(self):
-        config = self.env['ir.config_parameter'].sudo()
-        api_key = config.get_param('chat_analysis.api_key', '')
-        return {
-            'Authorization': f'Bearer {api_key}',
-            'Content-Type': 'application/json'
-        }
+            # Return to report form
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'chat.analysis.report',
+                'res_id': report.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
+
+        except Exception as e:
+            _logger.error(f"Analysis wizard failed: {e}")
+            raise UserError(f"Failed to start analysis: {str(e)}")
 
 
 class ChatSyncBatchWizard(models.TransientModel):

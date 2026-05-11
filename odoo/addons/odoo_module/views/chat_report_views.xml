@@ -206,7 +206,7 @@
         <field name="name">chat.analysis.report.calendar</field>
         <field name="model">chat.analysis.report</field>
         <field name="arch" type="xml">
-            <calendar string="Reports Calendar" date_start="target_datetime" color="analysis_type">
+            <calendar string="Reports Calendar" date_start="date_start" date_stop="date_end" color="analysis_type">
                 <field name="chat_id"/>
                 <field name="analysis_type"/>
                 <field name="state"/>
@@ -278,7 +278,7 @@
         </field>
     </record>
 
-        <!-- Ticket Search View -->
+    <!-- Ticket Search View -->
     <record id="view_chat_analysis_ticket_search" model="ir.ui.view">
         <field name="name">chat.analysis.ticket.search</field>
         <field name="model">chat.analysis.ticket</field>

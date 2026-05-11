@@ -35,7 +35,6 @@ def gemma3_llm() -> BaseLLMProvider:
     provider = LLMFactory.create_llm_provider(
         provider_type="gemma3",
         base_url=settings.ollama_base_url,
-        model_size="27b",
         temperature=0.1
     )
     return provider

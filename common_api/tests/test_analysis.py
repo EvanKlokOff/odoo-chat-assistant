@@ -1,241 +1,315 @@
 # common_api/tests/test_analysis.py
 import pytest
 from datetime import datetime, timedelta
+from unittest.mock import patch, MagicMock
+from httpx import AsyncClient, ASGITransport
+from common_api.main import app
 
+@pytest.mark.asyncio
+async def test_review_by_period_success(sample_chat, mock_celery_tasks):
+    """Test starting a review analysis for a period"""
+    start_date = (datetime.now() - timedelta(days=1)).isoformat()
+    end_date = datetime.now().isoformat()
 
-class TestAnalysisAPI:
-    """Tests for analysis endpoints - через реальный HTTP сервер"""
+    payload = {
+        "user_id": 123456789,
+        "chat_id": sample_chat["chat_id"],
+        "start_date": start_date,
+        "end_date": end_date
+    }
 
-    def test_review_chat_success(self, api_client, api_key_headers, create_sample_messages, sample_chat):
-        """Test review chat endpoint"""
-        target_datetime = datetime.now().isoformat()
-
-        response = api_client(
-            "POST",
-            "/api/v1/analysis/review",
-            json={
-                "chat_id": sample_chat["chat_id"],
-                "target_datetime": target_datetime,
-                "lookback_minutes": 60,
-                "lookforward_minutes": 60
-            },
-            headers=api_key_headers
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post(
+            "/api/v1/analysis/review/by-period",
+            json=payload,
+            headers={"Authorization": "Bearer odoo_api_key_1"}
         )
 
-        assert response.status_code == 200
-        data = response.json()
-        assert data["chat_id"] == sample_chat["chat_id"]
-        assert "summary" in data
-        assert "key_points" in data
-        assert "sentiment" in data
-        assert "participant_count" in data
-        assert "message_count" in data
-        assert data["participant_count"] >= 1
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    assert "Review analysis started successfully" in data["message"]
+    assert "task_id" in data
+    assert data["task_id"] is not None
+    assert "period_info" in data
+    assert data["period_info"]["status"] == "processing"
+    assert data["period_info"]["user_id"] == 123456789
+    assert data["period_info"]["chat_id"] == sample_chat["chat_id"]
 
-    def test_review_chat_no_messages(self, api_client, api_key_headers):
-        """Test review chat with no messages in time window"""
-        target_datetime = datetime.now().isoformat()
+    # Проверяем, что Celery задача была вызвана
+    mock_celery_tasks['review'].delay.assert_called_once()
 
-        response = api_client(
-            "POST",
-            "/api/v1/analysis/review",
-            json={
-                "chat_id": "non_existent_chat",
-                "target_datetime": target_datetime,
-                "lookback_minutes": 60,
-                "lookforward_minutes": 60
-            },
-            headers=api_key_headers
+
+@pytest.mark.asyncio
+async def test_review_by_period_invalid_dates(sample_chat):
+    """Test review with invalid date range (start_date after end_date)"""
+    start_date = datetime.now().isoformat()
+    end_date = (datetime.now() - timedelta(days=1)).isoformat()
+
+    payload = {
+        "user_id": 123456789,
+        "chat_id": sample_chat["chat_id"],
+        "start_date": start_date,
+        "end_date": end_date
+    }
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post(
+            "/api/v1/analysis/review/by-period",
+            json=payload,
+            headers={"Authorization": "Bearer odoo_api_key_1"}
         )
 
-        assert response.status_code == 404
-        assert "No messages found" in response.json()["error"]
+    assert response.status_code == 422
 
-    def test_review_chat_async(self, api_client, api_key_headers, sample_chat):
-        """Test async review chat endpoint"""
-        target_datetime = datetime.now().isoformat()
+@pytest.mark.asyncio
+async def test_review_by_period_missing_user_id(sample_chat):
+    """Test review without user_id"""
+    start_date = (datetime.now() - timedelta(days=1)).isoformat()
+    end_date = datetime.now().isoformat()
 
-        response = api_client(
-            "POST",
-            "/api/v1/analysis/review/async",
-            json={
-                "chat_id": sample_chat["chat_id"],
-                "target_datetime": target_datetime,
-                "lookback_minutes": 60,
-                "lookforward_minutes": 60
-            },
-            headers=api_key_headers
+    payload = {
+        "chat_id": sample_chat["chat_id"],
+        "start_date": start_date,
+        "end_date": end_date
+    }
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post(
+            "/api/v1/analysis/review/by-period",
+            json=payload,
+            headers={"Authorization": "Bearer odoo_api_key_1"}
         )
 
-        assert response.status_code == 200
-        data = response.json()
-        assert "task_id" in data
-        assert "status" in data
-        assert data["status"] == "pending"
+    assert response.status_code == 422
 
-    def test_get_analysis_task(self, api_client, api_key_headers, sample_chat):
-        """Test getting analysis task status"""
-        # Сначала создаём задачу через async эндпоинт
-        target_datetime = datetime.now().isoformat()
 
-        create_response = api_client(
-            "POST",
-            "/api/v1/analysis/review/async",
-            json={
-                "chat_id": sample_chat["chat_id"],
-                "target_datetime": target_datetime,
-                "lookback_minutes": 60,
-                "lookforward_minutes": 60
-            },
-            headers=api_key_headers
+@pytest.mark.asyncio
+async def test_review_by_period_missing_chat_id():
+    """Test review without chat_id"""
+    start_date = (datetime.now() - timedelta(days=1)).isoformat()
+    end_date = datetime.now().isoformat()
+
+    payload = {
+        "user_id": 123456789,
+        "start_date": start_date,
+        "end_date": end_date
+    }
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post(
+            "/api/v1/analysis/review/by-period",
+            json=payload,
+            headers={"Authorization": "Bearer odoo_api_key_1"}
         )
 
-        assert create_response.status_code == 200
-        task_data = create_response.json()
-        task_id = task_data["task_id"]
+    assert response.status_code == 422
 
-        # Получаем статус задачи
-        response = api_client(
-            "GET",
-            f"/api/v1/analysis/task/{task_id}",
-            headers=api_key_headers
+
+@pytest.mark.asyncio
+async def test_compliance_by_period_success(sample_chat, mock_celery_tasks):
+    """Test starting a compliance analysis for a period"""
+    start_date = (datetime.now() - timedelta(days=1)).isoformat()
+    end_date = datetime.now().isoformat()
+
+    payload = {
+        "user_id": 123456789,
+        "chat_id": sample_chat["chat_id"],
+        "instruction": "Check if the conversation follows business ethics rules",
+        "start_date": start_date,
+        "end_date": end_date
+    }
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post(
+            "/api/v1/analysis/compliance/by-period",
+            json=payload,
+            headers={"Authorization": "Bearer odoo_api_key_1"}
         )
 
-        assert response.status_code == 200
-        data = response.json()
-        assert data["task_id"] == task_id
-        assert "status" in data
-        assert "progress" in data
-        assert "created_at" in data
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    assert "Compliance analysis started successfully" in data["message"]
+    assert "task_id" in data
+    assert data["task_id"] is not None
+    assert "period_info" in data
+    assert data["period_info"]["status"] == "processing"
 
-    def test_compliance_check_success(self, api_client, api_key_headers, create_sample_messages, sample_chat):
-        """Test compliance check endpoint"""
-        target_datetime = datetime.now().isoformat()
+    # Проверяем, что Celery задача была вызвана
+    mock_celery_tasks['compliance'].delay.assert_called_once()
 
-        response = api_client(
-            "POST",
-            "/api/v1/analysis/compliance",
-            json={
-                "chat_id": sample_chat["chat_id"],
-                "target_datetime": target_datetime,
-                "description": "Test conversation about testing messages content",
-                "lookback_minutes": 60,
-                "lookforward_minutes": 60
-            },
-            headers=api_key_headers
+@pytest.mark.asyncio
+async def test_compliance_by_period_missing_instruction(sample_chat):
+    """Test compliance without instruction"""
+    start_date = (datetime.now() - timedelta(days=1)).isoformat()
+    end_date = datetime.now().isoformat()
+
+    payload = {
+        "user_id": 123456789,
+        "chat_id": sample_chat["chat_id"],
+        "start_date": start_date,
+        "end_date": end_date
+    }
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post(
+            "/api/v1/analysis/compliance/by-period",
+            json=payload,
+            headers={"Authorization": "Bearer odoo_api_key_1"}
         )
 
-        assert response.status_code == 200
-        data = response.json()
-        assert data["chat_id"] == sample_chat["chat_id"]
-        assert "compliant" in data
-        assert "confidence" in data
-        assert "explanation" in data
-        assert "violations" in data
-        assert "suggestions" in data
+    assert response.status_code == 422
 
-    def test_compliance_check_no_messages(self, api_client, api_key_headers):
-        """Test compliance check with no messages"""
-        target_datetime = datetime.now().isoformat()
 
-        response = api_client(
-            "POST",
-            "/api/v1/analysis/compliance",
-            json={
-                "chat_id": "non_existent_chat",
-                "target_datetime": target_datetime,
-                "description": "Test description",
-                "lookback_minutes": 60,
-                "lookforward_minutes": 60
-            },
-            headers=api_key_headers
+@pytest.mark.asyncio
+async def test_compliance_by_period_invalid_instruction_too_short(sample_chat):
+    """Test compliance with instruction too short"""
+    start_date = (datetime.now() - timedelta(days=1)).isoformat()
+    end_date = datetime.now().isoformat()
+
+    payload = {
+        "user_id": 123456789,
+        "chat_id": sample_chat["chat_id"],
+        "instruction": "short",
+        "start_date": start_date,
+        "end_date": end_date
+    }
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post(
+            "/api/v1/analysis/compliance/by-period",
+            json=payload,
+            headers={"Authorization": "Bearer odoo_api_key_1"}
         )
 
-        assert response.status_code == 404
-        assert "No messages found" in response.json()["error"]
+    assert response.status_code == 422
 
-    def test_compliance_check_async(self, api_client, api_key_headers, sample_chat):
-        """Test async compliance check endpoint"""
-        target_datetime = datetime.now().isoformat()
 
-        response = api_client(
-            "POST",
-            "/api/v1/analysis/compliance/async",
-            json={
-                "chat_id": sample_chat["chat_id"],
-                "target_datetime": target_datetime,
-                "description": "Test description",
-                "lookback_minutes": 60,
-                "lookforward_minutes": 60
-            },
-            headers=api_key_headers
+@pytest.mark.asyncio
+async def test_get_task_status_not_found():
+    """Test getting status of non-existent task"""
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.get(
+            "/api/v1/analysis/task/non_existent_task_id_12345",
+            headers={"Authorization": "Bearer odoo_api_key_1"}
         )
 
-        assert response.status_code == 200
-        data = response.json()
-        assert "task_id" in data
-        assert "status" in data
+    assert response.status_code == 404
+    data = response.json()
+    assert "not found" in data["error"]
 
-    def test_get_task_status_not_found(self, api_client, api_key_headers):
-        """Test getting non-existent task"""
-        response = api_client(
-            "GET",
-            "/api/v1/analysis/task/non_existent_task_id",
-            headers=api_key_headers
+
+@pytest.mark.asyncio
+async def test_review_by_period_unauthorized(sample_chat):
+    """Test review without API key"""
+    start_date = (datetime.now() - timedelta(days=1)).isoformat()
+    end_date = datetime.now().isoformat()
+
+    payload = {
+        "user_id": 123456789,
+        "chat_id": sample_chat["chat_id"],
+        "start_date": start_date,
+        "end_date": end_date
+    }
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post(
+            "/api/v1/analysis/review/by-period",
+            json=payload
         )
 
-        assert response.status_code == 404
-        assert "not found" in response.json()["error"]
+    assert response.status_code == 401
+    assert "Not authenticated" in response.json()["error"]
 
-    def test_review_chat_invalid_date_range(self, api_client, api_key_headers, sample_chat):
-        """Test review chat with invalid date range"""
-        response = api_client(
-            "POST",
-            "/api/v1/analysis/review",
-            json={
-                "chat_id": sample_chat["chat_id"],
-                "target_datetime": "invalid_date",
-                "lookback_minutes": 60,
-                "lookforward_minutes": 60
-            },
-            headers=api_key_headers
+
+@pytest.mark.asyncio
+async def test_review_by_period_invalid_api_key(sample_chat):
+    """Test review with invalid API key"""
+    start_date = (datetime.now() - timedelta(days=1)).isoformat()
+    end_date = datetime.now().isoformat()
+
+    payload = {
+        "user_id": 123456789,
+        "chat_id": sample_chat["chat_id"],
+        "start_date": start_date,
+        "end_date": end_date
+    }
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post(
+            "/api/v1/analysis/review/by-period",
+            json=payload,
+            headers={"Authorization": "Bearer invalid_key"}
         )
 
-        assert response.status_code == 422
+    assert response.status_code == 403
+    assert "Invalid API Key" in response.json()["error"]
 
-    def test_review_chat_missing_required_fields(self, api_client, api_key_headers, sample_chat):
-        """Test review chat with missing required fields"""
-        response = api_client(
-            "POST",
-            "/api/v1/analysis/review",
-            json={
-                "chat_id": sample_chat["chat_id"]
-                # missing target_datetime, lookback_minutes, lookforward_minutes
-            },
-            headers=api_key_headers
+
+@pytest.mark.asyncio
+async def test_review_by_period_negative_user_id(sample_chat):
+    """Test review with negative user_id"""
+    start_date = (datetime.now() - timedelta(days=1)).isoformat()
+    end_date = datetime.now().isoformat()
+
+    payload = {
+        "user_id": -1,
+        "chat_id": sample_chat["chat_id"],
+        "start_date": start_date,
+        "end_date": end_date
+    }
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post(
+            "/api/v1/analysis/review/by-period",
+            json=payload,
+            headers={"Authorization": "Bearer odoo_api_key_1"}
         )
 
-        assert response.status_code == 422
+    assert response.status_code == 422
 
-    def test_compliance_check_missing_description(self, api_client, api_key_headers, sample_chat):
-        """Test compliance check with missing description"""
-        target_datetime = datetime.now().isoformat()
 
-        response = api_client(
-            "POST",
-            "/api/v1/analysis/compliance",
-            json={
-                "chat_id": sample_chat["chat_id"],
-                "target_datetime": target_datetime
-                # missing description
-            },
-            headers=api_key_headers
+@pytest.mark.asyncio
+async def test_review_by_period_with_same_dates(sample_chat):
+    """Test review with same start_date and end_date"""
+    same_date = datetime.now().isoformat()
+
+    payload = {
+        "user_id": 123456789,
+        "chat_id": sample_chat["chat_id"],
+        "start_date": same_date,
+        "end_date": same_date
+    }
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post(
+            "/api/v1/analysis/review/by-period",
+            json=payload,
+            headers={"Authorization": "Bearer odoo_api_key_1"}
         )
 
-        assert response.status_code == 422
+    assert response.status_code == 422
 
-    def test_unauthorized_access(self, api_client):
-        """Test accessing endpoint without API key"""
-        response = api_client("POST", "/api/v1/analysis/review", json={})
-        assert response.status_code == 401
-        assert "Not authenticated" in response.json()["error"]
+
+@pytest.mark.asyncio
+async def test_compliance_by_period_with_same_dates(sample_chat):
+    """Test compliance with same start_date and end_date"""
+    same_date = datetime.now().isoformat()
+
+    payload = {
+        "user_id": 123456789,
+        "chat_id": sample_chat["chat_id"],
+        "instruction": "Check if the conversation follows business ethics rules",
+        "start_date": same_date,
+        "end_date": same_date
+    }
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post(
+            "/api/v1/analysis/compliance/by-period",
+            json=payload,
+            headers={"Authorization": "Bearer odoo_api_key_1"}
+        )
+
+    assert response.status_code == 422

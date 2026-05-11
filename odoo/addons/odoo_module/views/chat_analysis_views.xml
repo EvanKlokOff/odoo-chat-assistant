@@ -11,7 +11,6 @@
                 <field name="message_count" widget="integer"/>
                 <field name="chat_count" widget="integer"/>
                 <field name="last_active"/>
-                <field name="chat_ids" widget="many2many_tags"/>
             </list>
         </field>
     </record>
@@ -33,12 +32,6 @@
                         <button name="action_sync_user_data" type="object" class="oe_stat_button" icon="fa-refresh">
                             <div class="o_stat_info">
                                 <span class="o_stat_text">Sync User</span>
-                            </div>
-                        </button>
-                        <button name="action_sync_user_chats" type="object" class="oe_stat_button" icon="fa-comments">
-                            <div class="o_stat_info">
-                                <field name="chat_count" widget="statinfo"/>
-                                <span class="o_stat_text">Sync Chats</span>
                             </div>
                         </button>
                     </div>
@@ -92,7 +85,7 @@
         </field>
     </record>
 
-    <!-- Chat Form View with multiple API buttons -->
+    <!-- Chat Form View -->
     <record id="view_chat_analysis_chat_form" model="ir.ui.view">
         <field name="name">chat.analysis.chat.form</field>
         <field name="model">chat.analysis.chat</field>
@@ -107,20 +100,13 @@
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_analyze_chat" type="object"
-                                class="oe_stat_button" icon="fa-search">
+                        <button name="%(action_chat_analysis_wizard)d" type="action" class="oe_stat_button"
+                                icon="fa-search">
                             <div class="o_stat_info">
                                 <span class="o_stat_text">Analyze</span>
                             </div>
                         </button>
-                        <button name="action_check_compliance_quick" type="object"
-                                class="oe_stat_button" icon="fa-check-circle">
-                            <div class="o_stat_info">
-                                <span class="o_stat_text">Quick Compliance</span>
-                            </div>
-                        </button>
-                        <button name="action_export_chat_data" type="object"
-                                class="oe_stat_button" icon="fa-download">
+                        <button name="action_export_chat_data" type="object" class="oe_stat_button" icon="fa-download">
                             <div class="o_stat_info">
                                 <span class="o_stat_text">Export Data</span>
                             </div>
@@ -168,51 +154,6 @@
         </field>
     </record>
 
-    <!-- Messages List View -->
-    <record id="view_chat_analysis_message_list" model="ir.ui.view">
-        <field name="name">chat.analysis.message.list</field>
-        <field name="model">chat.analysis.message</field>
-        <field name="arch" type="xml">
-            <list>
-                <field name="display_name"/>
-                <field name="sender_name"/>
-                <field name="timestamp"/>
-                <field name="chat_id"/>
-                <field name="user_id"/>
-            </list>
-        </field>
-    </record>
-
-    <!-- Messages Form View -->
-    <record id="view_chat_analysis_message_form" model="ir.ui.view">
-        <field name="name">chat.analysis.message.form</field>
-        <field name="model">chat.analysis.message</field>
-        <field name="arch" type="xml">
-            <form>
-                <sheet>
-                    <div class="oe_title">
-                        <h1>
-                            <field name="display_name"/>
-                        </h1>
-                    </div>
-                    <group>
-                        <group>
-                            <field name="sender_name"/>
-                            <field name="user_id"/>
-                            <field name="chat_id"/>
-                        </group>
-                        <group>
-                            <field name="timestamp"/>
-                            <field name="message_id"/>
-                            <field name="external_id"/>
-                        </group>
-                    </group>
-                    <field name="content" nolabel="1"/>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
     <!-- Report List View -->
     <record id="view_chat_analysis_report_list" model="ir.ui.view">
         <field name="name">chat.analysis.report.list</field>
@@ -236,28 +177,24 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_process_review" type="object" string="Process Review"
-                            class="btn-primary"
-                            invisible="[('state', '!=', 'draft'), ('analysis_type', '!=', 'review')]"/>
-
-                    <button name="action_process_compliance" type="object" string="Check Compliance"
-                            class="btn-primary"
-                            invisible="[('state', '!=', 'draft'), ('analysis_type', '!=', 'compliance')]"/>
-
-                    <button name="action_retry_failed" type="object" string="Retry"
+                    <button name="action_refresh_status" type="object" string="Refresh Status"
+                            class="btn-info"
+                            invisible="state not in ['processing', 'pending']"/>
+                    <button name="action_retry" type="object" string="Retry"
                             class="btn-warning"
-                            invisible="[('state', '!=', 'error')]"/>
-
+                            invisible="state != 'error'"/>
                     <field name="state" widget="badge"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_view_chart" type="object" class="oe_stat_button" icon="fa-line-chart">
+                        <button name="action_view_chart" type="object" class="oe_stat_button" icon="fa-line-chart"
+                                invisible="state != 'completed'">
                             <div class="o_stat_info">
                                 <span class="o_stat_text">Analytics</span>
                             </div>
                         </button>
-                        <button name="action_export_report" type="object" class="oe_stat_button" icon="fa-download">
+                        <button name="action_export_report" type="object" class="oe_stat_button" icon="fa-download"
+                                invisible="state != 'completed'">
                             <div class="o_stat_info">
                                 <span class="o_stat_text">Export</span>
                             </div>
@@ -272,36 +209,49 @@
                         <group>
                             <field name="chat_id"/>
                             <field name="analysis_type"/>
-                            <field name="target_datetime"/>
+                            <field name="user_id"/>
+                            <field name="task_id" invisible="not task_id"/>
                         </group>
                         <group>
-                            <field name="lookback_minutes"/>
-                            <field name="lookforward_minutes"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="analysis_duration" widget="float_time" invisible="analysis_duration == 0"/>
                         </group>
                     </group>
 
                     <group string="Review Results"
-                           invisible="[('analysis_type', '!=', 'review'), ('state', '!=', 'completed')]">
+                           invisible="analysis_type != 'review' or state != 'completed'">
                         <field name="summary" nolabel="1"/>
                         <field name="sentiment" widget="badge"/>
                         <field name="key_points" nolabel="1"/>
+                        <field name="communication_style"/>
+                        <field name="recommendations"/>
                         <group>
                             <field name="participant_count"/>
                             <field name="message_count"/>
-                            <field name="message_count_before"/>
-                            <field name="message_count_after"/>
                         </group>
                     </group>
 
                     <group string="Compliance Results"
-                           invisible="[('analysis_type', '!=', 'compliance'), ('state', '!=', 'completed')]">
-                        <field name="instruction" nolabel="1" placeholder="Instruction for compliance check..."/>
+                           invisible="analysis_type != 'compliance' or state != 'completed'">
+                        <field name="instruction" nolabel="1" readonly="1"/>
+                        <field name="instruction_domain"/>
                         <separator/>
-                        <field name="compliant" widget="boolean_toggle"/>
-                        <field name="confidence" widget="progressbar"/>
+                        <group>
+                            <field name="compliant" widget="boolean_toggle"/>
+                            <field name="confidence" widget="progressbar"/>
+                        </group>
+                        <group>
+                            <field name="severe_violations" widget="statinfo"/>
+                            <field name="minor_violations" widget="statinfo"/>
+                        </group>
                         <field name="explanation" nolabel="1"/>
                         <field name="violations" nolabel="1"/>
                         <field name="suggestions" nolabel="1"/>
+                    </group>
+
+                    <group string="Error" invisible="state != 'error'">
+                        <field name="error_message" nolabel="1"/>
                     </group>
                 </sheet>
             </form>
@@ -374,4 +324,50 @@
             </form>
         </field>
     </record>
+
+    <!-- Message List View -->
+    <record id="view_chat_analysis_message_list" model="ir.ui.view">
+        <field name="name">chat.analysis.message.list</field>
+        <field name="model">chat.analysis.message</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="display_name"/>
+                <field name="sender_name"/>
+                <field name="timestamp"/>
+                <field name="chat_id"/>
+                <field name="user_id"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Message Form View -->
+    <record id="view_chat_analysis_message_form" model="ir.ui.view">
+        <field name="name">chat.analysis.message.form</field>
+        <field name="model">chat.analysis.message</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="display_name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="sender_name"/>
+                            <field name="user_id"/>
+                            <field name="chat_id"/>
+                        </group>
+                        <group>
+                            <field name="timestamp"/>
+                            <field name="message_id"/>
+                            <field name="external_id"/>
+                        </group>
+                    </group>
+                    <field name="content" nolabel="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
 </odoo>

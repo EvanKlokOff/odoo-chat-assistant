@@ -1,4 +1,7 @@
 # common_api/tests/conftest.py
+from datetime import datetime
+from unittest.mock import patch, MagicMock, AsyncMock
+
 import pytest
 import asyncio
 import os
@@ -11,27 +14,70 @@ os.environ.setdefault("ADMIN_API_KEY", "your_admin_api_key")
 os.environ.setdefault("CORS_ALLOWED_ORIGINS", "http://localhost:8000,http://localhost:8069")
 os.environ.setdefault("DATABASE_URL", "postgresql+asyncpg://analyzer:secure_password@localhost:5432/chat_analyzer")
 
-# URL тестового сервера (должен быть запущен вручную на порту 8001)
-TEST_SERVER_URL = "http://127.0.0.1:8001"
-
+# Используем порт 8000 (как в Docker)
+TEST_SERVER_URL = "http://127.0.0.1:8000"
 
 
 @pytest.fixture(scope="session")
 def test_server_url():
     """Возвращает URL тестового сервера."""
-    # Проверяем, что сервер запущен
     try:
-        response = requests.get(f"{TEST_SERVER_URL}/health", timeout=2)
+        response = requests.get(f"{TEST_SERVER_URL}/health", timeout=5)
         if response.status_code != 200:
             raise RuntimeError(f"Test server not healthy at {TEST_SERVER_URL}")
     except requests.RequestException as e:
         raise RuntimeError(
             f"Test server is not running at {TEST_SERVER_URL}. "
-            f"Please start it manually with: python -m common_api.main\n"
+            f"Make sure Docker container is running: docker-compose up -d chat_api\n"
             f"Error: {e}"
         )
-
     return TEST_SERVER_URL
+
+
+# Фикстура для мока Celery задач
+@pytest.fixture(autouse=True)
+def mock_celery_tasks():
+    """Автоматически мокаем все Celery задачи для всех тестов"""
+    with patch('src.tasks.analysis_tasks.run_review_analysis') as mock_review, \
+            patch('src.tasks.analysis_tasks.run_compliance_analysis') as mock_compliance:
+        # Настраиваем моки для delay
+        mock_review.delay = MagicMock(return_value=None)
+        mock_compliance.delay = MagicMock(return_value=None)
+
+        yield {
+            'review': mock_review,
+            'compliance': mock_compliance
+        }
+
+
+# Фикстура для мока БД операций
+@pytest.fixture(autouse=True)
+def mock_database_operations():
+    """Мокаем операции с БД для всех тестов"""
+    with patch('src.database.crud.get_analysis_task', new_callable=AsyncMock) as mock_get_task, \
+            patch('src.database.crud.create_analysis_task', new_callable=AsyncMock) as mock_create_task:
+        # Настраиваем мок для get_analysis_task - возвращаем None для несуществующих задач
+        async def mock_get_side_effect(task_id):
+            if task_id == "non_existent_task_id_12345":
+                return None
+            # Для существующей задачи возвращаем мок
+            mock_task = AsyncMock()
+            mock_task.task_id = task_id
+            mock_task.status = "completed"
+            mock_task.progress = 100
+            mock_task.result = {"summary": "Test result"}
+            mock_task.error = None
+            mock_task.created_at = datetime.now()
+            mock_task.completed_at = datetime.now()
+            return mock_task
+
+        mock_get_task.side_effect = mock_get_side_effect
+        mock_create_task.return_value = AsyncMock()
+
+        yield {
+            'get_task': mock_get_task,
+            'create_task': mock_create_task
+        }
 
 
 @pytest.fixture
@@ -71,73 +117,6 @@ def sample_chat():
         "chat_title": "Test Chat",
         "selected": False
     }
-
-
-@pytest.fixture(scope="session")
-def setup_database():
-    """Однократная настройка базы данных с тестовыми данными."""
-    import asyncio
-    from sqlalchemy.ext.asyncio import create_async_engine
-    from sqlalchemy import text
-    from src.database.models import Base, Message, UserChat
-    from src.database.crud import save_message, add_user_chat
-    from datetime import datetime
-
-    async def _setup():
-        # Создаём engine напрямую для тестов
-        engine = create_async_engine(
-            os.environ["DATABASE_URL"],
-            echo=False
-        )
-
-        async with engine.begin() as conn:
-            # Создаём все таблицы
-            await conn.run_sync(Base.metadata.create_all)
-            await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
-
-            # Очищаем старые данные
-            await conn.execute(text("DELETE FROM messages"))
-            await conn.execute(text("DELETE FROM user_chats"))
-
-            # Создаём тестовые данные с помощью прямых SQL запросов (быстрее и надёжнее)
-            for i in range(10):
-                await conn.execute(
-                    text("""
-                         INSERT INTO messages (message_id, chat_id, chat_title, sender_id, sender_name, content,
-                                               timestamp, platform)
-                         VALUES (:message_id, :chat_id, :chat_title, :sender_id, :sender_name, :content, :timestamp,
-                                 :platform)
-                         """),
-                    {
-                        "message_id": f"msg_{i}_{datetime.now().timestamp()}",
-                        "chat_id": "-1001234567890",
-                        "chat_title": "Test Chat",
-                        "sender_id": "123456789",
-                        "sender_name": "Test User",
-                        "content": f"Test message content {i}",
-                        "timestamp": datetime.now(),
-                        "platform": "telegram"
-                    }
-                )
-
-            # Добавляем связь пользователя с чатом
-            await conn.execute(
-                text("""
-                     INSERT INTO user_chats (user_id, chat_id, chat_title, selected)
-                     VALUES (:user_id, :chat_id, :chat_title, :selected)
-                     """),
-                {
-                    "user_id": "123456789",
-                    "chat_id": "-1001234567890",
-                    "chat_title": "Test Chat",
-                    "selected": 0
-                }
-            )
-
-        await engine.dispose()
-
-    asyncio.run(_setup())
-    return True
 
 
 @pytest.fixture

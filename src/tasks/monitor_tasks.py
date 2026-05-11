@@ -2,6 +2,8 @@
 import logging
 
 import asyncio
+
+from src.config import settings
 from src.interfaces.telegram.utils import clean_llm_response, split_long_message
 from src.database import crud
 from src.tasks.celery_app import celery_app
@@ -16,6 +18,9 @@ async def monitor_analysis_tasks():
     """Периодическая задача для отправки уведомлений"""
     logger.info("🔍 MONITOR TASK STARTED")  # Добавить
     logger.debug("🔄 Monitor task running")
+
+    # Логируем DATABASE_URL для отладки
+    logger.info(f"📊 DATABASE_URL in monitor: {settings.database_url}")
 
     try:
         unnotified_tasks = await crud.get_unnotified_finished_tasks()
@@ -51,25 +56,6 @@ async def monitor_analysis_tasks():
                 parse_mode=parse_mode,
                 task_id=task.task_id
             )
-
-            # if task_type == "review":
-            #     header = "📊 *Ревью чата завершено!*"
-            # else:
-            #     header = "✅ *Проверка соответствия завершена!*"
-
-            # text = (
-            #     f"{header}\n\n"
-            #     f"📝 *Результат:*\n{result_text}\n\n"
-            #     f"🆔 ID задачи: `{task.task_id[:8]}...`"
-            # )
-
-            # Отправляем через отдельную задачу
-            # send_notification.delay(
-            #     user_id=task.user_id,
-            #     text=text,
-            #     task_id=task.task_id
-            #
-            # )
 
         return {"status": "success", "processed": len(unnotified_tasks)}
 

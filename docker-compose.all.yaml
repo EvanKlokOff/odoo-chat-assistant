@@ -35,7 +35,7 @@ services:
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:-}
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -57,7 +57,7 @@ services:
       - ./postgres-init-odoo:/docker-entrypoint-initdb.d
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U odoo -d odoo_db"]
+      test: [ "CMD-SHELL", "pg_isready -U odoo -d odoo_db" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -98,6 +98,8 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # ========== ML МОДЕЛИ (Ollama) - ОПТИМИЗАЦИИ ДЛЯ M1/M2/M3 ==========
+
   # FastAPI сервер
   chat_api:
     build:
@@ -107,13 +109,22 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - .env
+      - .env.docker
     environment:
       - DATABASE_URL=postgresql+asyncpg://analyzer:secure_password@chat_analyzer_postgres:5432/chat_analyzer
       - API_HOST=0.0.0.0
       - API_PORT=8000
       - API_KEYS=odoo_api_key_1
       - ADMIN_API_KEY=your_admin_api_key
+      - REDIS_URL=redis://:secure_redis_password@chat_analyzer_redis:6379/0
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - OLLAMA_LLM_MODEL=phi4-mini:latest
+      - OLLAMA_EMBEDDING_MODEL=nomic-embed-text
+      - LLM_PROVIDER=ollama
+      - EMBEDDING_PROVIDER=nomic
+      - DEBUG=false
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       chat_analyzer_postgres:
         condition: service_healthy
@@ -121,6 +132,149 @@ services:
         condition: service_healthy
     volumes:
       - ./logs:/app/logs
+    networks:
+      - internal_network
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Worker для тяжелых LLM задач (анализ) - ограниченная конкурентность
+  celery_analysis_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: celery_analysis_worker
+    command: worker-analysis
+    env_file:
+      - .env.docker
+    environment:
+      - REDIS_URL=redis://:secure_redis_password@chat_analyzer_redis:6379/0
+      - CELERY_BROKER_URL=redis://:secure_redis_password@chat_analyzer_redis:6379/0
+      - DATABASE_URL=postgresql+asyncpg://analyzer:secure_password@chat_analyzer_postgres:5432/chat_analyzer
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - OLLAMA_LLM_MODEL=phi4-mini:latest
+      - OLLAMA_EMBEDDING_MODEL=nomic-embed-text
+      - LLM_PROVIDER=ollama
+      - EMBEDDING_PROVIDER=nomic
+      - PYTHONPATH=/app
+      - DEBUG=false
+      - TASK_MONITOR_INTERVAL=10.0
+      - ANALYSIS_CONCURRENCY=1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      chat_analyzer_redis:
+        condition: service_healthy
+      chat_analyzer_postgres:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+      - ./models_cache:/app/models_cache
+    networks:
+      - internal_network
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  celery_embeddings_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: celery_embeddings_worker
+    command: worker-embeddings
+    env_file:
+      - .env.docker
+    environment:
+      - REDIS_URL=redis://:secure_redis_password@chat_analyzer_redis:6379/0
+      - CELERY_BROKER_URL=redis://:secure_redis_password@chat_analyzer_redis:6379/0
+      - DATABASE_URL=postgresql+asyncpg://analyzer:secure_password@chat_analyzer_postgres:5432/chat_analyzer
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - OLLAMA_EMBEDDING_MODEL=nomic-embed-text
+      - EMBEDDING_PROVIDER=nomic
+      - PYTHONPATH=/app
+      - DEBUG=false
+      - EMBEDDINGS_CONCURRENCY=2
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      chat_analyzer_redis:
+        condition: service_healthy
+      chat_analyzer_postgres:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+      - ./models_cache:/app/models_cache
+    networks:
+      - internal_network
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  celery_fast_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: celery_fast_worker
+    command: worker-fast
+    env_file:
+      - .env.docker
+    environment:
+      - REDIS_URL=redis://:secure_redis_password@chat_analyzer_redis:6379/0
+      - CELERY_BROKER_URL=redis://:secure_redis_password@chat_analyzer_redis:6379/0
+      - DATABASE_URL=postgresql+asyncpg://analyzer:secure_password@chat_analyzer_postgres:5432/chat_analyzer
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - PYTHONPATH=/app
+      - DEBUG=false
+      - FAST_CONCURRENCY=10
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      chat_analyzer_redis:
+        condition: service_healthy
+      chat_analyzer_postgres:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - internal_network
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: celery_beat
+    command: beat
+    env_file:
+      - .env.docker
+    environment:
+      - REDIS_URL=redis://:secure_redis_password@chat_analyzer_redis:6379/0
+      - CELERY_BROKER_URL=redis://:secure_redis_password@chat_analyzer_redis:6379/0
+      - DATABASE_URL=postgresql+asyncpg://analyzer:secure_password@chat_analyzer_postgres:5432/chat_analyzer
+      - PYTHONPATH=/app
+      - REDBEAT_LOCK_TIMEOUT=120
+      - REDBEAT_LOCK_RENEWAL=30
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      chat_analyzer_redis:
+        condition: service_healthy
+      chat_analyzer_postgres:
+        condition: service_healthy
     networks:
       - internal_network
     restart: unless-stopped

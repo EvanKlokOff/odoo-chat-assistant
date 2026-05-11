@@ -11,6 +11,7 @@ _worker_loop = None
 _worker_engine = None
 _worker_session_local = None
 
+
 def get_or_create_event_loop():
     """Получить или создать event loop для текущего процесса"""
     global _worker_loop
@@ -22,6 +23,7 @@ def get_or_create_event_loop():
             asyncio.set_event_loop(_worker_loop)
     return _worker_loop
 
+
 def get_worker_engine():
     """Получить engine для текущего worker процесса"""
     global _worker_engine
@@ -29,6 +31,8 @@ def get_worker_engine():
         from sqlalchemy.ext.asyncio import create_async_engine
 
         async_db_url = settings.database_url.replace("postgresql://", "postgresql+asyncpg://")
+        # Логируем для отладки
+        logger.info(f"📊 Creating DB engine with URL: {async_db_url}")
 
         loop = get_or_create_event_loop()
 
@@ -67,6 +71,7 @@ def on_worker_start():
     """Callback при старте worker процесса"""
     global _worker_loop
     logger.info(f"🚀 Worker process {os.getpid()} starting...")
+    logger.info(f"📊 DATABASE_URL from settings: {settings.database_url}")
 
     # Создаем event loop для этого процесса
     try:

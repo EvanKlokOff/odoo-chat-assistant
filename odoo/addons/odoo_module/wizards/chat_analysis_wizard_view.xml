@@ -4,23 +4,33 @@
         <field name="name">chat.analysis.wizard.form</field>
         <field name="model">chat.analysis.wizard</field>
         <field name="arch" type="xml">
-            <form>
+            <form string="Chat Analysis">
                 <sheet>
                     <div class="oe_title">
-                        <h1>Chat Analysis</h1>
+                        <h1>Analyze Chat Conversation</h1>
                     </div>
-                    <group>
-                        <field name="chat_id" required="1"/>
-                        <field name="target_datetime" required="1"/>
-                        <field name="lookback_minutes"/>
-                        <field name="lookforward_minutes"/>
+
+                    <group name="main" string="Analysis Parameters">
+                        <field name="chat_id" required="1" options="{'no_create': True}"/>
+                        <field name="report_type" widget="radio" required="1"/>
+
+                        <separator string="Date Range" colspan="2"/>
+                        <field name="date_start" required="1"/>
+                        <field name="date_end" required="1"/>
+
                         <field name="instruction"
-                               placeholder="Enter instruction for compliance check..."
-                               invisible="[('parent.action_type', '=', 'review')]"/>
+                               placeholder="Enter the compliance instruction/requirements..."
+                               invisible="report_type != 'compliance'"
+                               required="report_type == 'compliance'"
+                               colspan="2"/>
+                        <field name="instruction_domain"
+                               placeholder="E.g., Customer Support, Sales, Internal Communication"
+                               invisible="report_type != 'compliance'"
+                               colspan="2"/>
                     </group>
+
                     <footer>
-                        <button name="action_review" type="object" string="Run Review" class="btn-primary"/>
-                        <button name="action_compliance" type="object" string="Check Compliance" class="btn-primary"/>
+                        <button name="action_analyze" type="object" string="Start Analysis" class="btn-primary"/>
                         <button string="Cancel" class="btn-secondary" special="cancel"/>
                     </footer>
                 </sheet>
