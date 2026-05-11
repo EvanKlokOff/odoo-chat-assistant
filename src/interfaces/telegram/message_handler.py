@@ -2,9 +2,12 @@ import logging
 from datetime import datetime
 from aiogram import types
 from aiogram.types import ChatMemberUpdated
+
+from src.sanitizer.sanitizer import sanitizer
 from src.database.crud import add_user_chat
 from src.database.crud import save_message
 from src.tasks import embedding_tasks
+
 logger = logging.getLogger(__name__)
 
 
@@ -18,6 +21,17 @@ async def handle_new_message(message: types.Message):
     if message.chat.type == "private":
         logger.debug(f"Skipping private message with bot's in chat {message.chat.id}")
         return
+
+    # Проверяем сообщение через санитайзер
+    if message.text:
+        is_safe, warning = sanitizer.check_message(message.text, message.from_user.id)
+
+        if not is_safe:
+            logger.warning(f"Message from user {message.from_user.id} blocked by sanitizer")
+            # Отправляем предупреждение в чат
+            await message.reply(warning, parse_mode="Markdown")
+            # Не сохраняем сообщение в БД
+            return
 
     try:
         # Extract sender name

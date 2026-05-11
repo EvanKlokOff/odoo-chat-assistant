@@ -1,0 +1,14 @@
+ignore\s+(?:previous|above|all)\s+(?:instructions|commands|prompts)
+forget\s+(?:previous|above|all)\s+(?:instructions|commands|prompts)
+pretend\s+you\s+are\s+
+you\s+are\s+now\s+
+show\s+(?:me\s+)?(?:your|the)\s+(?:system|internal)\s+prompt
+what\s+are\s+your\s+instructions
+покажи\s+свой\s+промпт
+игнорируй\s+предыдущие\s+инструкции
+забудь\s+все\s+инструкции
+ты\s+теперь\s+
+отныне\s+ты\s+
+disregard\s+(?:previous|above|all)\s+instructions
+output\s+your\s+initial\s+prompt
+reveal\s+your\s+prompt

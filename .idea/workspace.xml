@@ -1,35 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="55a1370a-10e4-4600-8281-b944b6da5411" name="Changes" comment="Добавление рабочей синхронизации чатов и пользователей + связей между ними">
-      <change afterPath="$PROJECT_DIR$/Dockerfile.ollama" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Dockerfile.worker" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common_api/routers/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ollama_init.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/odoo-chat-assistant.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/odoo-chat-assistant.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dockerfile.api" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile.api" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common_api/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/common_api/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common_api/routers/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/common_api/routers/analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common_api/schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/common_api/schemas.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common_api/tests/conftest.py" beforeDir="false" afterPath="$PROJECT_DIR$/common_api/tests/conftest.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common_api/tests/test_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/common_api/tests/test_analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.all.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.all.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/models/chat_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/chat_analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/models/chat_user.py" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/models/chat_user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_analysis_views.xml" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_analysis_views.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_report_views.xml" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/views/chat_report_views.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/wizards/chat_analysis_wizard.py" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/wizards/chat_analysis_wizard.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/odoo/addons/odoo_module/wizards/chat_analysis_wizard_view.xml" beforeDir="false" afterPath="$PROJECT_DIR$/odoo/addons/odoo_module/wizards/chat_analysis_wizard_view.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.api.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/analyzers/nodes.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/analyzers/nodes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/llm/providers.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/llm/providers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tasks/analysis_tasks.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tasks/analysis_tasks.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tasks/monitor_tasks.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tasks/monitor_tasks.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tasks/worker_startup.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tasks/worker_startup.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/conftest.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/conftest.py" afterDir="false" />
+    <list default="true" id="55a1370a-10e4-4600-8281-b944b6da5411" name="Changes" comment="Добавление рабочих функций получения review и complience для одоо">
+      <change afterPath="$PROJECT_DIR$/src/sanitizer/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/sanitizer/config.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/sanitizer/forbidden_categories.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/sanitizer/injection_patterns.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/sanitizer/sanitizer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/telegram/message_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/interfaces/telegram/message_handler.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -481,7 +459,15 @@
       <option name="project" value="LOCAL" />
       <updated>1778437506958</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="Добавление рабочих функций получения review и complience для одоо">
+      <option name="closed" value="true" />
+      <created>1778524118740</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1778524118740</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -514,7 +500,8 @@
     <MESSAGE value="Добавлен git_ignore" />
     <MESSAGE value="Добавлена рабочая версия одоо модуля с поддержкой синхронизации пользователей и чатов" />
     <MESSAGE value="Добавление рабочей синхронизации чатов и пользователей + связей между ними" />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавление рабочей синхронизации чатов и пользователей + связей между ними" />
+    <MESSAGE value="Добавление рабочих функций получения review и complience для одоо" />
+    <option name="LAST_COMMIT_MESSAGE" value="Добавление рабочих функций получения review и complience для одоо" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
   </component>
   <component name="XDebuggerManager">
